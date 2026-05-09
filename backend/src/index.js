@@ -36,12 +36,27 @@ const PORT = process.env.PORT || 4000;
 // ---------------------------------------------------------------------------
 app.use(helmet());
 
+const allowedOrigins = [
+  process.env.APP_URL,
+  'http://localhost:3000',
+  'http://localhost:3001',
+].filter(Boolean).map((o) => o.replace(/\/$/, '')); // strip trailing slashes
+
 app.use(cors({
-  origin: process.env.APP_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    const clean = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(clean) || clean.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature'],
 }));
+app.options('*', cors());
 
 app.use(compression());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
