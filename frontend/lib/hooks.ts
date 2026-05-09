@@ -14,18 +14,16 @@ export function useAuth() {
   const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
-    // On mount, read localStorage directly — Zustand may not have hydrated yet
-    try {
-      const raw = localStorage.getItem('careconnect-auth');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const storedUser = parsed?.state?.user;
-        const storedToken = parsed?.state?.token;
-        if (storedUser && storedToken && !useAuthStore.getState().user) {
-          useAuthStore.getState().setAuth(storedUser, storedToken);
+    // On mount (client only), load from localStorage if store is empty
+    if (!useAuthStore.getState().user) {
+      try {
+        const raw = localStorage.getItem('careconnect-auth');
+        if (raw) {
+          const { user: u, token: t } = JSON.parse(raw);
+          if (u && t) useAuthStore.getState().setAuth(u, t);
         }
-      }
-    } catch {}
+      } catch {}
+    }
     setReady(true);
   }, []);
 
