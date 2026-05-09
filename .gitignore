@@ -6,4 +6,6 @@ dist/
 .next/
 *.log
 coverage/
+!frontend/app/**/coverage/
+!frontend/app/**/coverage/**
 .DS_Store
