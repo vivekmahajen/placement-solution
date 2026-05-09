@@ -17,7 +17,8 @@ interface TableProps<T> {
   loading?: boolean;
 }
 
-export default function Table<T extends Record<string, unknown>>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function Table<T extends Record<string, any>>({
   columns,
   data,
   keyExtractor,

@@ -166,10 +166,10 @@ export default function CareHomeAvailabilityPage() {
             </Button>
           }
         >
-          <Table
-            columns={columns as Parameters<typeof Table>[0]['columns']}
-            data={records as unknown as Record<string, unknown>[]}
-            keyExtractor={(r) => (r as unknown as AvailabilityRecord).id}
+          <Table<AvailabilityRecord>
+            columns={columns}
+            data={records}
+            keyExtractor={(r) => r.id}
             loading={isLoading}
             emptyMessage="No availability records yet. Add your first room type."
           />
