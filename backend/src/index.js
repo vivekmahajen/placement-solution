@@ -74,8 +74,17 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ---------------------------------------------------------------------------
-// Health check
+// Root & health check
 // ---------------------------------------------------------------------------
+app.get('/', (req, res) => {
+  res.json({
+    name: 'CareConnect API',
+    version: '1.0.0',
+    status: 'ok',
+    docs: '/api/v1',
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
