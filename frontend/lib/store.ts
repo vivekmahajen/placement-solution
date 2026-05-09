@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 interface User {
   id: string;
@@ -11,28 +10,47 @@ interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
-  _hasHydrated: boolean;
   setAuth: (user: User, token: string) => void;
   clearAuth: () => void;
-  setHasHydrated: (v: boolean) => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      token: null,
-      _hasHydrated: false,
-      setAuth: (user, token) => set({ user, token }),
-      clearAuth: () => set({ user: null, token: null }),
-      setHasHydrated: (v) => set({ _hasHydrated: v }),
-    }),
-    {
-      name: 'careconnect-auth',
-      partialize: (state) => ({ user: state.user, token: state.token }),
-      onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true);
-      },
-    }
-  )
-);
+const STORAGE_KEY = 'careconnect-auth';
+
+function loadFromStorage(): { user: User | null; token: string | null } {
+  if (typeof window === 'undefined') return { user: null, token: null };
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { user: null, token: null };
+    const parsed = JSON.parse(raw);
+    return { user: parsed.user ?? null, token: parsed.token ?? null };
+  } catch {
+    return { user: null, token: null };
+  }
+}
+
+function saveToStorage(user: User, token: string) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ user, token }));
+  } catch {}
+}
+
+function clearStorage() {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {}
+}
+
+export const useAuthStore = create<AuthState>()((set) => ({
+  user: null,
+  token: null,
+  setAuth: (user, token) => {
+    saveToStorage(user, token);
+    set({ user, token });
+  },
+  clearAuth: () => {
+    clearStorage();
+    set({ user: null, token: null });
+  },
+}));
