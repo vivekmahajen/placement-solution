@@ -9,10 +9,14 @@ import { trialDaysLeft } from './utils';
 
 function isTokenExpired(token: string): boolean {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    // JWT uses base64url (- and _); atob() needs standard base64 (+ and /)
+    const base64url = token.split('.')[1];
+    const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
     return typeof payload.exp === 'number' && payload.exp * 1000 < Date.now();
   } catch {
-    return true;
+    // If we can't parse the token, don't treat it as expired — let the server decide
+    return false;
   }
 }
 
