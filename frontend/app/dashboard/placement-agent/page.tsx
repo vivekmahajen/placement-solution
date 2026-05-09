@@ -68,7 +68,10 @@ export default function PlacementAgentDashboard() {
 
   const { data: queuePreview } = useQuery({
     queryKey: ['queue-preview', user?.id],
-    queryFn: () => get<QueuePreview>('/queue?limit=5'),
+    queryFn: () => get<{ queue: QueuePreview['items'] }>('/queue?limit=5').then((d) => ({
+      total: d.queue?.length ?? 0,
+      items: d.queue ?? [],
+    })),
     enabled: !!user,
   });
 
@@ -170,7 +173,7 @@ export default function PlacementAgentDashboard() {
             </Link>
           }
         >
-          {!queuePreview || queuePreview.items.length === 0 ? (
+          {!queuePreview || (queuePreview.items?.length ?? 0) === 0 ? (
             <div className="py-6 text-center text-slate-400 text-sm">
               No patients in the queue right now.
             </div>

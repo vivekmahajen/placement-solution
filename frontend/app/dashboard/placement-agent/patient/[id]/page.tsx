@@ -299,13 +299,13 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                       <div className="mb-4">
                         <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Services Offered</span>
                         <div className="flex flex-wrap gap-1.5 mt-1.5">
-                          {match.services_offered.slice(0, 6).map((s) => (
+                          {(match.services_offered ?? []).slice(0, 6).map((s) => (
                             <span key={s} className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded">
                               {s}
                             </span>
                           ))}
-                          {match.services_offered.length > 6 && (
-                            <span className="text-xs text-slate-400">+{match.services_offered.length - 6} more</span>
+                          {(match.services_offered?.length ?? 0) > 6 && (
+                            <span className="text-xs text-slate-400">+{(match.services_offered?.length ?? 0) - 6} more</span>
                           )}
                         </div>
                       </div>
