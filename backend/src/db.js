@@ -3,11 +3,19 @@
 require('dotenv').config();
 const { Pool } = require('pg');
 
+// Strip parameters pg doesn't understand (e.g. channel_binding from Neon URLs)
+const dbUrl = (process.env.DATABASE_URL || '').replace(/[&?]channel_binding=[^&]*/g, '');
+if (!dbUrl) {
+  console.error('FATAL: DATABASE_URL is not set');
+  process.exit(1);
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: dbUrl,
+  ssl: { rejectUnauthorized: false },
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
+  connectionTimeoutMillis: 10000,
 });
 
 pool.on('error', (err) => {
