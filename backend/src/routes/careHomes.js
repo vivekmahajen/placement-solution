@@ -101,6 +101,73 @@ router.get('/me/services', authenticate, async (req, res, next) => {
 });
 
 // ---------------------------------------------------------------------------
+// GET /search - search care homes by patient criteria (placement agents)
+// ---------------------------------------------------------------------------
+router.get('/search', authenticate, async (req, res, next) => {
+  try {
+    const { city, zip, gender, room_type, budget_min, budget_max } = req.query;
+
+    const conditions = [
+      'ch.is_active = TRUE',
+      'ch.is_verified = TRUE',
+      'cha.rooms_available > 0',
+    ];
+    const params = [];
+    let idx = 1;
+
+    if (city) {
+      conditions.push(`LOWER(ch.city) LIKE LOWER($${idx})`);
+      params.push(`%${city}%`);
+      idx++;
+    }
+    if (zip) {
+      conditions.push(`ch.zip = $${idx}`);
+      params.push(zip);
+      idx++;
+    }
+    if (gender && gender !== 'any') {
+      conditions.push(`(cha.gender_preference = 'any' OR cha.gender_preference = $${idx})`);
+      params.push(gender);
+      idx++;
+    }
+    if (room_type) {
+      conditions.push(`cha.room_type = $${idx}`);
+      params.push(room_type);
+      idx++;
+    }
+    if (budget_min) {
+      conditions.push(`cha.base_price_monthly >= $${idx}`);
+      params.push(parseFloat(budget_min));
+      idx++;
+    }
+    if (budget_max) {
+      conditions.push(`cha.base_price_monthly <= $${idx}`);
+      params.push(parseFloat(budget_max));
+      idx++;
+    }
+
+    const result = await db.query(
+      `SELECT ch.id, ch.facility_name, ch.address_line1, ch.city, ch.state, ch.zip,
+              ch.county, ch.phone, ch.email, ch.website, ch.facility_type, ch.bed_capacity,
+              cha.room_type, cha.gender_preference, cha.rooms_available, cha.base_price_monthly,
+              array_agg(DISTINCT chs.service_code) FILTER (WHERE chs.id IS NOT NULL) as services
+       FROM care_homes ch
+       JOIN care_home_availability cha ON cha.care_home_id = ch.id
+       LEFT JOIN care_home_services chs ON chs.care_home_id = ch.id AND chs.is_available = TRUE
+       WHERE ${conditions.join(' AND ')}
+       GROUP BY ch.id, cha.id
+       ORDER BY ch.facility_name ASC
+       LIMIT 100`,
+      params
+    );
+
+    return res.json({ careHomes: result.rows, total: result.rows.length });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // GET /:id - get single care home
 // ---------------------------------------------------------------------------
 router.get('/:id', authenticate, async (req, res, next) => {
