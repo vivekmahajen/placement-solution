@@ -151,7 +151,7 @@ router.post(
 
       return res.status(201).json({
         message: 'Registration successful. Please verify your email.',
-        accessToken,
+        token: accessToken,
         refreshToken,
         user: { id: user.id, email: user.email, role: user.role, status: user.status },
       });
@@ -212,7 +212,7 @@ router.post(
       );
 
       return res.json({
-        accessToken,
+        token: accessToken,
         refreshToken,
         user: {
           id: user.id,
