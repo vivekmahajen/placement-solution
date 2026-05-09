@@ -44,9 +44,6 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
 
   if (response.status === 401) {
     useAuthStore.getState().clearAuth();
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login';
-    }
     throw new ApiError('Unauthorized', 401);
   }
 

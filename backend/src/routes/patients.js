@@ -18,6 +18,47 @@ function handleValidationErrors(req, res) {
 }
 
 // ---------------------------------------------------------------------------
+// GET /stats - patient stats for referral agent dashboard
+// ---------------------------------------------------------------------------
+router.get('/stats', authenticate, async (req, res, next) => {
+  try {
+    let whereClause = '';
+    let params = [];
+
+    if (req.user.role === 'referral_agent') {
+      const agentResult = await db.query(
+        'SELECT id FROM referral_agents WHERE user_id = $1', [req.user.id]
+      );
+      if (!agentResult.rows.length) return res.json({ total: 0, queued: 0, locked: 0, placed: 0, cancelled: 0 });
+      whereClause = 'WHERE p.referral_agent_id = $1';
+      params = [agentResult.rows[0].id];
+    }
+
+    const result = await db.query(
+      `SELECT
+        COUNT(*) FILTER (WHERE TRUE) AS total,
+        COUNT(*) FILTER (WHERE queue_status = 'queued') AS queued,
+        COUNT(*) FILTER (WHERE queue_status IN ('locked','in_progress','matched')) AS locked,
+        COUNT(*) FILTER (WHERE queue_status = 'placed') AS placed,
+        COUNT(*) FILTER (WHERE queue_status = 'cancelled') AS cancelled
+       FROM patients p ${whereClause}`,
+      params
+    );
+
+    const row = result.rows[0];
+    return res.json({
+      total: parseInt(row.total),
+      queued: parseInt(row.queued),
+      locked: parseInt(row.locked),
+      placed: parseInt(row.placed),
+      cancelled: parseInt(row.cancelled),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // GET / - list patients (role-filtered)
 // ---------------------------------------------------------------------------
 router.get('/', authenticate, async (req, res, next) => {
