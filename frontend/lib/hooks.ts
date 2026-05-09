@@ -11,12 +11,13 @@ export function useAuth() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const token = useAuthStore((s) => s.token);
+  const hasHydrated = useAuthStore((s) => s._hasHydrated);
 
   useEffect(() => {
-    if (!user || !token) {
+    if (hasHydrated && (!user || !token)) {
       router.replace('/login');
     }
-  }, [user, token, router]);
+  }, [user, token, router, hasHydrated]);
 
   return { user, token };
 }
