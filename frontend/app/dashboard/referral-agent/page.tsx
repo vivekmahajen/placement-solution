@@ -37,7 +37,7 @@ export default function ReferralAgentDashboard() {
 
   const { data: recentPatients = [] } = useQuery({
     queryKey: ['recent-patients', user?.id],
-    queryFn: () => get<RecentPatient[]>('/patients?limit=5'),
+    queryFn: () => get<{ patients: RecentPatient[] }>('/patients?limit=5').then((d) => d.patients ?? []),
     enabled: !!user,
   });
 

@@ -48,7 +48,7 @@ export default function AdminUsersPage() {
       if (filterRole) params.set('role', filterRole);
       if (filterStatus) params.set('status', filterStatus);
       const q = params.toString();
-      return get<User[]>(`/admin/users${q ? '?' + q : ''}`);
+      return get<{ users: User[] }>(`/admin/users${q ? '?' + q : ''}`).then((d) => d.users ?? []);
     },
     enabled: !!user,
   });

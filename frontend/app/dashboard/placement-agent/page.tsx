@@ -62,7 +62,7 @@ export default function PlacementAgentDashboard() {
 
   const { data: assignments = [], isLoading: loadingAssignments } = useQuery({
     queryKey: ['my-assignments', user?.id],
-    queryFn: () => get<LockedPatient[]>('/queue/my-assignments'),
+    queryFn: () => get<{ assignments: LockedPatient[] }>('/queue/my-assignments').then((d) => d.assignments ?? []),
     enabled: !!user,
   });
 

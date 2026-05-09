@@ -164,6 +164,25 @@ router.put('/users/:id/subscription', async (req, res, next) => {
 });
 
 // ---------------------------------------------------------------------------
+// GET /care-homes - list all care homes (optionally filtered)
+// ---------------------------------------------------------------------------
+router.get('/care-homes', async (req, res, next) => {
+  try {
+    const { status } = req.query;
+    let where = '';
+    const params = [];
+    if (status === 'pending_verification') {
+      where = 'WHERE ch.is_verified = FALSE AND ch.is_active = TRUE';
+    }
+    const result = await db.query(
+      `SELECT ch.*, u.email as user_email FROM care_homes ch
+       JOIN users u ON u.id = ch.user_id ${where} ORDER BY ch.created_at DESC`,
+      params
+    );
+    return res.json({ careHomes: result.rows });
+  } catch (err) { next(err); }
+});
+
 // GET /care-homes/pending - care homes pending verification
 // ---------------------------------------------------------------------------
 router.get('/care-homes/pending', async (req, res, next) => {

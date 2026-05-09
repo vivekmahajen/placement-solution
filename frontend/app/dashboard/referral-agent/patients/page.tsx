@@ -29,7 +29,7 @@ export default function ReferralAgentPatientsPage() {
 
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['my-patients', user?.id],
-    queryFn: () => get<Patient[]>('/patients'),
+    queryFn: () => get<{ patients: Patient[] }>('/patients').then((d) => d.patients ?? []),
     enabled: !!user,
   });
 

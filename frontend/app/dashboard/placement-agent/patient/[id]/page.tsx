@@ -91,7 +91,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
 
   const { data: patient, isLoading: loadingPatient } = useQuery({
     queryKey: ['patient', patientId],
-    queryFn: () => get<Patient>(`/patients/${patientId}`),
+    queryFn: () => get<{ patient: Patient }>(`/patients/${patientId}`).then((d) => d.patient),
     enabled: !!user,
   });
 
@@ -103,7 +103,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
 
   const { data: matches = [], isLoading: loadingMatches } = useQuery({
     queryKey: ['matches', patientId],
-    queryFn: () => get<Match[]>(`/queue/matches/${patientId}`),
+    queryFn: () => get<{ matches: Match[] }>(`/queue/matches/${patientId}`).then((d) => d.matches ?? []),
     enabled: !!user && showMatches,
   });
 
