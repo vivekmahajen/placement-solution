@@ -43,12 +43,10 @@ export default function LoginPage() {
 
     try {
       const data = await post<LoginResponse>('/auth/login', { email, password });
+      // Write directly to localStorage first — guaranteed client-side write
+      localStorage.setItem('careconnect-auth', JSON.stringify({ user: data.user, token: data.token }));
       setAuth(data.user, data.token);
-      if (rememberMe) {
-        localStorage.setItem('careconnect_remember', 'true');
-      }
       const redirect = ROLE_REDIRECTS[data.user.role] || '/dashboard';
-      // Use hard navigation so Zustand store is fully hydrated on the new page
       window.location.href = redirect;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Invalid email or password. Please try again.';

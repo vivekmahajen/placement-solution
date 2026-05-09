@@ -165,6 +165,7 @@ export default function RegisterPage() {
         profile: profileData,
       });
 
+      localStorage.setItem('careconnect-auth', JSON.stringify({ user: data.user, token: data.token }));
       setAuth(data.user, data.token);
       const redirect = ROLE_REDIRECTS[data.user.role] || '/dashboard';
       window.location.href = redirect;
