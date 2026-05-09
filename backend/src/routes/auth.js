@@ -86,17 +86,29 @@ router.post(
       if (role === 'care_home') {
         const {
           facility_name, license_number, license_state, address_line1, address_line2,
-          city, state, zip, county, phone, fax, facility_email, website,
+          city, state, zip, county, phone, fax, facility_email, contact_email, website,
           admin_name, bed_capacity, facility_type,
         } = profileFields;
+        // Map frontend display values to DB enum values
+        const FACILITY_TYPE_MAP = {
+          'Residential Care Home': 'residential_care',
+          'Assisted Living Facility': 'assisted_living',
+          'Skilled Nursing Facility': 'skilled_nursing',
+          'Memory Care Facility': 'memory_care',
+          'Continuing Care Retirement Community': 'continuing_care',
+          'Adult Family Home': 'residential_care',
+          'Board and Care Home': 'residential_care',
+        };
+        const mappedFacilityType = FACILITY_TYPE_MAP[facility_type] || facility_type || null;
+        const contactEmail = contact_email || facility_email || email;
         await client.query(
           `INSERT INTO care_homes
             (user_id, facility_name, license_number, license_state, address_line1, address_line2,
              city, state, zip, county, phone, fax, email, website, admin_name, bed_capacity, facility_type)
            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
-          [user.id, facility_name, license_number, license_state, address_line1, address_line2 || null,
-           city, state, zip, county || null, phone, fax || null, facility_email || email,
-           website || null, admin_name || null, bed_capacity || null, facility_type || null]
+          [user.id, facility_name, license_number, license_state, address_line1 || '',
+           address_line2 || null, city, state, zip, county || null, phone, fax || null,
+           contactEmail, website || null, admin_name || null, bed_capacity || null, mappedFacilityType]
         );
       } else if (role === 'placement_agent') {
         const {
@@ -108,8 +120,9 @@ router.post(
             (user_id, first_name, last_name, company_name, license_number,
              address_line1, city, state, zip, phone, email, bio)
            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-          [user.id, first_name, last_name, company_name || null, license_number || null,
-           address_line1, city, state, zip, phone, agent_email || email, bio || null]
+          [user.id, first_name || '', last_name || '', company_name || null, license_number || null,
+           address_line1 || '', city || '', state || '', zip || '', phone || '',
+           agent_email || email, bio || null]
         );
       } else if (role === 'referral_agent') {
         const {
