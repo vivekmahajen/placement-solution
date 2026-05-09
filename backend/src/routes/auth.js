@@ -55,7 +55,9 @@ router.post(
   async (req, res, next) => {
     if (handleValidationErrors(req, res)) return;
 
-    const { email, password, role, ...profileFields } = req.body;
+    const { email, password, role, profile, ...rest } = req.body;
+    // Frontend sends profile fields nested under 'profile' key
+    const profileFields = profile && typeof profile === 'object' ? profile : rest;
     const client = await db.getClient();
 
     try {
@@ -118,8 +120,8 @@ router.post(
           `INSERT INTO referral_agents
             (user_id, first_name, last_name, company_name, address_line1, city, state, zip, phone, email)
            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-          [user.id, first_name, last_name, company_name || null,
-           address_line1, city, state, zip, phone, agent_email || email]
+          [user.id, first_name || '', last_name || '', company_name || null,
+           address_line1 || '', city || '', state || '', zip || '', phone || '', agent_email || email]
         );
       }
 
