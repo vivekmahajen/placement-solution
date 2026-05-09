@@ -7,6 +7,15 @@ import { useAuthStore } from './store';
 import { get } from './api';
 import { trialDaysLeft } from './utils';
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return typeof payload.exp === 'number' && payload.exp * 1000 < Date.now();
+  } catch {
+    return true;
+  }
+}
+
 export function useAuth() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
@@ -20,7 +29,14 @@ export function useAuth() {
         const raw = localStorage.getItem('careconnect-auth');
         if (raw) {
           const { user: u, token: t } = JSON.parse(raw);
-          if (u && t) useAuthStore.getState().setAuth(u, t);
+          if (u && t) {
+            if (isTokenExpired(t)) {
+              // Token is expired — clear storage so user must log in again
+              localStorage.removeItem('careconnect-auth');
+            } else {
+              useAuthStore.getState().setAuth(u, t);
+            }
+          }
         }
       } catch {}
     }

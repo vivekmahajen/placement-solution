@@ -12,8 +12,23 @@ const {
 const router = express.Router();
 
 // ---------------------------------------------------------------------------
-// GET /my - get my subscription
+// GET /my (or /current) - get my subscription
 // ---------------------------------------------------------------------------
+router.get('/current', authenticate, async (req, res, next) => {
+  try {
+    const result = await db.query(
+      `SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [req.user.id]
+    );
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'No subscription found.' });
+    }
+    return res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get('/my', authenticate, async (req, res, next) => {
   try {
     const result = await db.query(

@@ -53,6 +53,24 @@ router.get('/', authenticate, async (req, res, next) => {
 });
 
 // ---------------------------------------------------------------------------
+// GET /me - get the care home profile for the current user
+// ---------------------------------------------------------------------------
+router.get('/me', authenticate, async (req, res, next) => {
+  try {
+    const result = await db.query(
+      'SELECT * FROM care_homes WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1',
+      [req.user.id]
+    );
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Care home profile not found.' });
+    }
+    return res.json({ careHome: result.rows[0] });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // GET /:id - get single care home
 // ---------------------------------------------------------------------------
 router.get('/:id', authenticate, async (req, res, next) => {
@@ -185,6 +203,40 @@ router.put('/:id', authenticate, async (req, res, next) => {
        admin_name, bed_capacity, facility_type, id]
     );
     return res.json({ careHome: result.rows[0] });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /me/availability/summary - summary for the current user's care home
+// ---------------------------------------------------------------------------
+router.get('/me/availability/summary', authenticate, async (req, res, next) => {
+  try {
+    const chResult = await db.query(
+      'SELECT id, bed_capacity FROM care_homes WHERE user_id = $1 LIMIT 1',
+      [req.user.id]
+    );
+    if (!chResult.rows.length) {
+      return res.json({ private_rooms_available: 0, shared_rooms_available: 0, total_rooms_available: 0 });
+    }
+    const careHomeId = chResult.rows[0].id;
+    const result = await db.query(
+      `SELECT room_type, SUM(rooms_available) AS rooms_available
+       FROM care_home_availability WHERE care_home_id = $1 GROUP BY room_type`,
+      [careHomeId]
+    );
+    let private_rooms_available = 0;
+    let shared_rooms_available = 0;
+    for (const row of result.rows) {
+      if (row.room_type === 'private') private_rooms_available += parseInt(row.rooms_available, 10) || 0;
+      else shared_rooms_available += parseInt(row.rooms_available, 10) || 0;
+    }
+    return res.json({
+      private_rooms_available,
+      shared_rooms_available,
+      total_rooms_available: private_rooms_available + shared_rooms_available,
+    });
   } catch (err) {
     next(err);
   }
