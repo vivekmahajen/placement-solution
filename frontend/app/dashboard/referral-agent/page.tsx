@@ -21,7 +21,7 @@ interface PatientStats {
 interface RecentPatient {
   id: string;
   created_at: string;
-  status: string;
+  queue_status: string;
   preferred_city: string;
   preferred_zip: string;
 }
@@ -132,7 +132,7 @@ export default function ReferralAgentDashboard() {
                       </td>
                       <td className="py-3 pr-4 text-slate-600">{formatDate(p.created_at)}</td>
                       <td className="py-3">
-                        <StatusBadge status={p.status} />
+                        <StatusBadge status={p.queue_status} />
                       </td>
                     </tr>
                   ))}

@@ -33,7 +33,7 @@ interface Assignment {
 interface Match {
   care_home_id: string;
   facility_name: string;
-  address: string;
+  address_line1: string;
   city: string;
   state: string;
   zip: string;
@@ -267,7 +267,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                         <h3 className="font-semibold text-slate-900 text-lg">{match.facility_name}</h3>
                         <div className="flex items-center gap-1.5 text-sm text-slate-500 mt-1">
                           <MapPin className="w-3.5 h-3.5" />
-                          {match.address}, {match.city}, {match.state} {match.zip}
+                          {match.address_line1}, {match.city}, {match.state} {match.zip}
                         </div>
                         {match.phone && (
                           <div className="flex items-center gap-1.5 text-sm text-slate-500 mt-0.5">
@@ -316,7 +316,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                         variant="secondary"
                         size="sm"
                         onClick={() => proposeMutation.mutate({ careHomeId: match.care_home_id, action: 'propose' })}
-                        disabled={!!match.proposal_status}
+                        disabled={match.proposal_status === 'proposed' || match.proposal_status === 'selected'}
                       >
                         <Building2 className="w-3.5 h-3.5" />
                         {match.proposal_status === 'proposed' ? 'Proposed' : 'Propose'}

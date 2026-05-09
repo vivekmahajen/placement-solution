@@ -14,7 +14,7 @@ import { UserPlus, Users } from 'lucide-react';
 interface Patient {
   id: string;
   created_at: string;
-  status: string;
+  queue_status: string;
   preferred_city: string;
   preferred_zip: string;
   preferred_county: string;
@@ -107,7 +107,7 @@ export default function ReferralAgentPatientsPage() {
                         {formatDate(patient.created_at)}
                       </td>
                       <td className="py-3">
-                        <StatusBadge status={patient.status} />
+                        <StatusBadge status={patient.queue_status} />
                       </td>
                     </tr>
                   ))}

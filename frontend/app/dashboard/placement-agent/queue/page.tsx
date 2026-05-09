@@ -51,7 +51,8 @@ export default function PlacementAgentQueuePage() {
       if (filterCounty) params.set('county', filterCounty);
       if (filterRoomType) params.set('room_type', filterRoomType);
       const q = params.toString();
-      return get<QueueResponse>(`/queue${q ? '?' + q : ''}`);
+      return get<{ queue: QueuePatient[] }>(`/queue${q ? '?' + q : ''}`)
+        .then((d) => ({ total: d.queue?.length ?? 0, items: d.queue ?? [] }));
     },
     enabled: !!user,
   });
