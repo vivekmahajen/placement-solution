@@ -4,14 +4,15 @@ require('dotenv').config();
 const { Pool } = require('pg');
 
 // Strip parameters pg doesn't understand (e.g. channel_binding from Neon URLs)
-const rawUrl = (process.env.DATABASE_URL || '').trim();
+// NEON_DATABASE_URL takes priority so Railway's auto-injected DATABASE_URL doesn't override Neon
+const rawUrl = (process.env.NEON_DATABASE_URL || process.env.DATABASE_URL || '').trim();
 const dbUrl = rawUrl.replace(/[&?]channel_binding=[^&]*/g, '');
 
-console.log('[DB] DATABASE_URL present:', !!rawUrl);
-console.log('[DB] DATABASE_URL prefix:', rawUrl.slice(0, 30) || '(empty)');
+console.log('[DB] URL source:', process.env.NEON_DATABASE_URL ? 'NEON_DATABASE_URL' : 'DATABASE_URL');
+console.log('[DB] URL prefix:', rawUrl.slice(0, 40) || '(empty)');
 
 if (!dbUrl) {
-  console.error('FATAL: DATABASE_URL is not set — exiting');
+  console.error('FATAL: Neither NEON_DATABASE_URL nor DATABASE_URL is set — exiting');
   process.exit(1);
 }
 
