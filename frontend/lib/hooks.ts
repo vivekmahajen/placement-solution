@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from './store';
@@ -18,36 +18,36 @@ function isTokenExpired(token: string): boolean {
 
 export function useAuth() {
   const router = useRouter();
-  const [ready, setReady] = useState(false);
+  // Reactive store values — used by callers, not for the redirect logic
   const user = useAuthStore((s) => s.user);
   const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
-    // On mount (client only), load from localStorage if store is empty
-    if (!useAuthStore.getState().user) {
+    // Read from the store synchronously (avoids stale-closure race with setReady)
+    let authed = !!useAuthStore.getState().user;
+
+    if (!authed) {
       try {
         const raw = localStorage.getItem('careconnect-auth');
         if (raw) {
           const { user: u, token: t } = JSON.parse(raw);
-          if (u && t) {
-            if (isTokenExpired(t)) {
-              // Token is expired — clear storage so user must log in again
-              localStorage.removeItem('careconnect-auth');
-            } else {
-              useAuthStore.getState().setAuth(u, t);
-            }
+          if (u && t && !isTokenExpired(t)) {
+            useAuthStore.getState().setAuth(u, t);
+            authed = true;
+          } else {
+            // Token missing or expired — clear stale data
+            localStorage.removeItem('careconnect-auth');
           }
         }
       } catch {}
     }
-    setReady(true);
-  }, []);
 
-  useEffect(() => {
-    if (ready && (!user || !token)) {
+    if (!authed) {
       router.replace('/login');
     }
-  }, [ready, user, token, router]);
+  // router is stable in Next.js App Router — this runs once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return { user, token };
 }
