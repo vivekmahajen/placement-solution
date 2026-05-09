@@ -334,6 +334,8 @@ router.get('/matches/:patientId', authenticate, requireRole('placement_agent', '
 
       return {
         ...home,
+        care_home_id: home.id,
+        services_offered: home.services ?? [],
         match_score: Math.min(100, Math.round(score * 100) / 100),
         match_reasons: reasons,
       };
@@ -343,7 +345,8 @@ router.get('/matches/:patientId', authenticate, requireRole('placement_agent', '
     scored.sort((a, b) => b.match_score - a.match_score);
     const top10 = scored.slice(0, 10);
 
-    // Store matches in DB
+    // Store matches in DB and fetch current proposal statuses
+    let proposalStatusMap = {};
     if (req.user.role === 'placement_agent') {
       const agentResult = await db.query(
         'SELECT id FROM placement_agents WHERE user_id = $1', [req.user.id]
@@ -354,14 +357,27 @@ router.get('/matches/:patientId', authenticate, requireRole('placement_agent', '
         await db.query(
           `INSERT INTO care_home_matches
             (patient_id, placement_agent_id, care_home_id, match_score, match_reasons, status)
-           VALUES ($1,$2,$3,$4,$5,'proposed')
+           VALUES ($1,$2,$3,$4,$5,'suggested')
            ON CONFLICT DO NOTHING`,
           [patientId, agentId, match.id, match.match_score, JSON.stringify(match.match_reasons)]
-        ).catch(() => {}); // Ignore duplicates silently
+        ).catch(() => {});
       }
+
+      // Fetch current statuses for all top10 matches
+      const statusRows = await db.query(
+        `SELECT care_home_id, status FROM care_home_matches
+         WHERE patient_id = $1 AND placement_agent_id = $2`,
+        [patientId, agentId]
+      );
+      proposalStatusMap = Object.fromEntries(statusRows.rows.map((r) => [r.care_home_id, r.status]));
     }
 
-    return res.json({ matches: top10, patient, servicesNeeded: neededServices });
+    const matchesWithStatus = top10.map((m) => ({
+      ...m,
+      proposal_status: proposalStatusMap[m.id] ?? null,
+    }));
+
+    return res.json({ matches: matchesWithStatus, patient, servicesNeeded: neededServices });
   } catch (err) {
     next(err);
   }
@@ -418,6 +434,67 @@ router.post('/matches/:patientId/select', authenticate, requireRole('placement_a
     );
 
     return res.json({ selectedMatches: selectedMatches.rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /assignment/:patientId - get agent's assignment for a specific patient
+// ---------------------------------------------------------------------------
+router.get('/assignment/:patientId', authenticate, requireRole('placement_agent'), async (req, res, next) => {
+  try {
+    const agentResult = await db.query(
+      'SELECT id FROM placement_agents WHERE user_id = $1', [req.user.id]
+    );
+    if (!agentResult.rows.length) return res.status(404).json({ error: 'Placement agent profile not found.' });
+    const agentId = agentResult.rows[0].id;
+
+    const result = await db.query(
+      `SELECT * FROM queue_assignments WHERE patient_id = $1 AND placement_agent_id = $2 ORDER BY created_at DESC LIMIT 1`,
+      [req.params.patientId, agentId]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'No assignment found.' });
+    return res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /proposals - update care home match status (propose / visited)
+// ---------------------------------------------------------------------------
+router.post('/proposals', authenticate, requireRole('placement_agent'), async (req, res, next) => {
+  try {
+    const { patient_id, care_home_id, action } = req.body;
+    if (!patient_id || !care_home_id || !action) {
+      return res.status(400).json({ error: 'patient_id, care_home_id, and action are required.' });
+    }
+
+    const agentResult = await db.query(
+      'SELECT id FROM placement_agents WHERE user_id = $1', [req.user.id]
+    );
+    if (!agentResult.rows.length) return res.status(403).json({ error: 'Access denied.' });
+    const agentId = agentResult.rows[0].id;
+
+    const lockCheck = await db.query(
+      `SELECT id FROM queue_assignments WHERE patient_id = $1 AND placement_agent_id = $2 AND status = 'locked'`,
+      [patient_id, agentId]
+    );
+    if (!lockCheck.rows.length) {
+      return res.status(403).json({ error: 'No active lock on this patient.' });
+    }
+
+    const statusMap = { propose: 'proposed', visited: 'visited' };
+    const newStatus = statusMap[action] || action;
+
+    await db.query(
+      `UPDATE care_home_matches SET status = $1
+       WHERE patient_id = $2 AND placement_agent_id = $3 AND care_home_id = $4`,
+      [newStatus, patient_id, agentId, care_home_id]
+    );
+
+    return res.json({ success: true, status: newStatus });
   } catch (err) {
     next(err);
   }
