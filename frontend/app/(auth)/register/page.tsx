@@ -167,7 +167,7 @@ export default function RegisterPage() {
 
       setAuth(data.user, data.token);
       const redirect = ROLE_REDIRECTS[data.user.role] || '/dashboard';
-      router.push(redirect);
+      window.location.href = redirect;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Registration failed. Please try again.';
       setError(message);
