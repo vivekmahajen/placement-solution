@@ -142,12 +142,13 @@ app.use((err, req, res, next) => {
 // ---------------------------------------------------------------------------
 // Start server
 // ---------------------------------------------------------------------------
-app.listen(PORT, () => {
-  console.log(`CareConnect API running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
-  console.log(`API base: http://localhost:${PORT}/api/v1`);
-
-  // Start background cron jobs
-  startQueueJobs();
-});
+// Vercel runs as serverless — skip listen() and cron jobs
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`CareConnect API running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+    console.log(`API base: http://localhost:${PORT}/api/v1`);
+    startQueueJobs();
+  });
+}
 
 module.exports = app;
