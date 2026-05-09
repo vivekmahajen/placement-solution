@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from './store';
@@ -9,15 +9,31 @@ import { trialDaysLeft } from './utils';
 
 export function useAuth() {
   const router = useRouter();
+  const [ready, setReady] = useState(false);
   const user = useAuthStore((s) => s.user);
   const token = useAuthStore((s) => s.token);
-  const hasHydrated = useAuthStore((s) => s._hasHydrated);
 
   useEffect(() => {
-    if (hasHydrated && (!user || !token)) {
+    // On mount, read localStorage directly — Zustand may not have hydrated yet
+    try {
+      const raw = localStorage.getItem('careconnect-auth');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const storedUser = parsed?.state?.user;
+        const storedToken = parsed?.state?.token;
+        if (storedUser && storedToken && !useAuthStore.getState().user) {
+          useAuthStore.getState().setAuth(storedUser, storedToken);
+        }
+      }
+    } catch {}
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (ready && (!user || !token)) {
       router.replace('/login');
     }
-  }, [user, token, router, hasHydrated]);
+  }, [ready, user, token, router]);
 
   return { user, token };
 }
