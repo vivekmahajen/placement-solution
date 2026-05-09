@@ -13,8 +13,8 @@ import { Plus, Trash2, MapPin } from 'lucide-react';
 
 interface CoverageArea {
   id: string;
-  area_type: 'city' | 'zip' | 'county';
-  area_value: string;
+  coverage_type: 'city' | 'zip' | 'county';
+  coverage_value: string;
   state: string;
 }
 
@@ -42,7 +42,7 @@ export default function CoverageAreasPage() {
 
   const addMutation = useMutation({
     mutationFn: (data: Omit<CoverageArea, 'id'>) =>
-      post('/agents/me/coverage-areas', data),
+      post('/placement-agents/me/coverage', data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['coverage-areas'] });
       setAreaValue('');
@@ -55,7 +55,7 @@ export default function CoverageAreasPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => del(`/agents/me/coverage-areas/${id}`),
+    mutationFn: (id: string) => del(`/placement-agents/me/coverage/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['coverage-areas'] });
     },
@@ -72,12 +72,12 @@ export default function CoverageAreasPage() {
       setFormError('Please select a state.');
       return;
     }
-    addMutation.mutate({ area_type: areaType, area_value: areaValue.trim(), state });
+    addMutation.mutate({ coverage_type: areaType, coverage_value: areaValue.trim(), state });
   }
 
   const groupedAreas = areas.reduce<Record<string, CoverageArea[]>>((acc, area) => {
-    if (!acc[area.area_type]) acc[area.area_type] = [];
-    acc[area.area_type].push(area);
+    if (!acc[area.coverage_type]) acc[area.coverage_type] = [];
+    acc[area.coverage_type].push(area);
     return acc;
   }, {});
 
@@ -173,7 +173,7 @@ export default function CoverageAreasPage() {
                         >
                           <MapPin className="w-3.5 h-3.5 text-slate-400" />
                           <span className="text-sm text-slate-700 font-medium">
-                            {area.area_value}, {area.state}
+                            {area.coverage_value}, {area.state}
                           </span>
                           <button
                             onClick={() => deleteMutation.mutate(area.id)}
