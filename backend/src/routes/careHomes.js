@@ -71,6 +71,36 @@ router.get('/me', authenticate, async (req, res, next) => {
 });
 
 // ---------------------------------------------------------------------------
+// GET /me/availability - availability records for the current user's care home
+// ---------------------------------------------------------------------------
+router.get('/me/availability', authenticate, async (req, res, next) => {
+  try {
+    const ch = await db.query('SELECT id FROM care_homes WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (!ch.rows.length) return res.json({ availability: [] });
+    const result = await db.query(
+      'SELECT * FROM care_home_availability WHERE care_home_id = $1 ORDER BY room_type, gender_preference',
+      [ch.rows[0].id]
+    );
+    return res.json({ availability: result.rows });
+  } catch (err) { next(err); }
+});
+
+// ---------------------------------------------------------------------------
+// GET /me/services - services for the current user's care home
+// ---------------------------------------------------------------------------
+router.get('/me/services', authenticate, async (req, res, next) => {
+  try {
+    const ch = await db.query('SELECT id FROM care_homes WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (!ch.rows.length) return res.json({ services: [] });
+    const result = await db.query(
+      'SELECT * FROM care_home_services WHERE care_home_id = $1 ORDER BY service_name',
+      [ch.rows[0].id]
+    );
+    return res.json({ services: result.rows });
+  } catch (err) { next(err); }
+});
+
+// ---------------------------------------------------------------------------
 // GET /:id - get single care home
 // ---------------------------------------------------------------------------
 router.get('/:id', authenticate, async (req, res, next) => {

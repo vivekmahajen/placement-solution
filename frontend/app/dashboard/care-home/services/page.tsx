@@ -51,7 +51,7 @@ export default function CareHomeServicesPage() {
 
   const { data: services, isLoading } = useQuery({
     queryKey: ['care-home-services', user?.id],
-    queryFn: () => get<ServiceEntry[]>('/care-homes/me/services'),
+    queryFn: () => get<{ services: ServiceEntry[] }>('/care-homes/me/services').then((d) => d.services ?? []),
     enabled: !!user,
   });
 

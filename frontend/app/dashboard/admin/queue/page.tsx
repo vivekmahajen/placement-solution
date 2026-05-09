@@ -36,7 +36,7 @@ export default function AdminQueuePage() {
 
   const { data: assignments = [], isLoading } = useQuery({
     queryKey: ['admin-queue'],
-    queryFn: () => get<QueueAssignment[]>('/admin/queue'),
+    queryFn: () => get<{ queueEntries: QueueAssignment[] }>('/admin/queue').then((d) => d.queueEntries ?? []),
     enabled: !!user,
   });
 

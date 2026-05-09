@@ -39,7 +39,7 @@ export default function AdminCareHomesPage() {
     queryKey: ['admin-care-homes', tab],
     queryFn: () => {
       const params = tab === 'pending' ? '?status=pending_verification' : '';
-      return get<CareHome[]>(`/admin/care-homes${params}`);
+      return get<{ careHomes: CareHome[] }>(`/admin/care-homes${params}`).then((d) => d.careHomes ?? []);
     },
     enabled: !!user,
   });

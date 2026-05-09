@@ -47,7 +47,7 @@ export default function CareHomeAvailabilityPage() {
 
   const { data: records = [], isLoading } = useQuery({
     queryKey: ['care-home-availability', user?.id],
-    queryFn: () => get<AvailabilityRecord[]>('/care-homes/me/availability'),
+    queryFn: () => get<{ availability: AvailabilityRecord[] }>('/care-homes/me/availability').then((d) => d.availability ?? []),
     enabled: !!user,
   });
 
