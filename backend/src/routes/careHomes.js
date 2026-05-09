@@ -101,6 +101,86 @@ router.get('/me/services', authenticate, async (req, res, next) => {
 });
 
 // ---------------------------------------------------------------------------
+// POST /me/availability - add availability record for current user's care home
+// ---------------------------------------------------------------------------
+router.post('/me/availability', authenticate, async (req, res, next) => {
+  try {
+    const ch = await db.query('SELECT id FROM care_homes WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (!ch.rows.length) return res.status(404).json({ error: 'Care home profile not found.' });
+    const careHomeId = ch.rows[0].id;
+
+    const { room_type, gender_preference = 'any', rooms_available, base_price_monthly, notes } = req.body;
+    const result = await db.query(
+      `INSERT INTO care_home_availability
+        (care_home_id, room_type, gender_preference, rooms_available, base_price_monthly, notes, last_updated_at, updated_by_user_id)
+       VALUES ($1,$2,$3,$4,$5,$6,NOW(),$7)
+       ON CONFLICT (care_home_id, room_type, gender_preference)
+       DO UPDATE SET
+         rooms_available = EXCLUDED.rooms_available,
+         base_price_monthly = EXCLUDED.base_price_monthly,
+         notes = EXCLUDED.notes,
+         last_updated_at = NOW(),
+         updated_by_user_id = EXCLUDED.updated_by_user_id
+       RETURNING *`,
+      [careHomeId, room_type, gender_preference, rooms_available, base_price_monthly, notes || null, req.user.id]
+    );
+    return res.status(201).json({ availability: result.rows[0] });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// PUT /me/availability/:id - update a specific availability record
+// ---------------------------------------------------------------------------
+router.put('/me/availability/:id', authenticate, async (req, res, next) => {
+  try {
+    const ch = await db.query('SELECT id FROM care_homes WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (!ch.rows.length) return res.status(404).json({ error: 'Care home profile not found.' });
+    const careHomeId = ch.rows[0].id;
+
+    const { room_type, gender_preference, rooms_available, base_price_monthly, notes } = req.body;
+    const result = await db.query(
+      `UPDATE care_home_availability SET
+         room_type = COALESCE($1, room_type),
+         gender_preference = COALESCE($2, gender_preference),
+         rooms_available = COALESCE($3, rooms_available),
+         base_price_monthly = COALESCE($4, base_price_monthly),
+         notes = COALESCE($5, notes),
+         last_updated_at = NOW(),
+         updated_by_user_id = $6
+       WHERE id = $7 AND care_home_id = $8
+       RETURNING *`,
+      [room_type, gender_preference, rooms_available, base_price_monthly, notes, req.user.id, req.params.id, careHomeId]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Availability record not found.' });
+    return res.json({ availability: result.rows[0] });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// DELETE /me/availability/:id - delete a specific availability record
+// ---------------------------------------------------------------------------
+router.delete('/me/availability/:id', authenticate, async (req, res, next) => {
+  try {
+    const ch = await db.query('SELECT id FROM care_homes WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (!ch.rows.length) return res.status(404).json({ error: 'Care home profile not found.' });
+    const careHomeId = ch.rows[0].id;
+
+    const result = await db.query(
+      'DELETE FROM care_home_availability WHERE id = $1 AND care_home_id = $2 RETURNING id',
+      [req.params.id, careHomeId]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Availability record not found.' });
+    return res.json({ message: 'Deleted.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // GET /search - search care homes by patient criteria (placement agents)
 // ---------------------------------------------------------------------------
 router.get('/search', authenticate, async (req, res, next) => {
