@@ -7,27 +7,12 @@ import { useAuthStore } from './store';
 import { get } from './api';
 import { trialDaysLeft } from './utils';
 
-function isTokenExpired(token: string): boolean {
-  try {
-    // JWT uses base64url (- and _); atob() needs standard base64 (+ and /)
-    const base64url = token.split('.')[1];
-    const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(atob(base64));
-    return typeof payload.exp === 'number' && payload.exp * 1000 < Date.now();
-  } catch {
-    // If we can't parse the token, don't treat it as expired — let the server decide
-    return false;
-  }
-}
-
 export function useAuth() {
   const router = useRouter();
-  // Reactive store values — used by callers, not for the redirect logic
   const user = useAuthStore((s) => s.user);
   const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
-    // Read from the store synchronously (avoids stale-closure race with setReady)
     let authed = !!useAuthStore.getState().user;
 
     if (!authed) {
@@ -35,12 +20,9 @@ export function useAuth() {
         const raw = localStorage.getItem('careconnect-auth');
         if (raw) {
           const { user: u, token: t } = JSON.parse(raw);
-          if (u && t && !isTokenExpired(t)) {
+          if (u && t) {
             useAuthStore.getState().setAuth(u, t);
             authed = true;
-          } else {
-            // Token missing or expired — clear stale data
-            localStorage.removeItem('careconnect-auth');
           }
         }
       } catch {}
@@ -49,7 +31,6 @@ export function useAuth() {
     if (!authed) {
       router.replace('/login');
     }
-  // router is stable in Next.js App Router — this runs once on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
