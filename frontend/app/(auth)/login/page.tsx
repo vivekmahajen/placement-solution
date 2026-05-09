@@ -48,7 +48,8 @@ export default function LoginPage() {
         localStorage.setItem('careconnect_remember', 'true');
       }
       const redirect = ROLE_REDIRECTS[data.user.role] || '/dashboard';
-      router.push(redirect);
+      // Use hard navigation so Zustand store is fully hydrated on the new page
+      window.location.href = redirect;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Invalid email or password. Please try again.';
       setError(message);
