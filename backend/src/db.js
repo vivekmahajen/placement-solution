@@ -4,9 +4,14 @@ require('dotenv').config();
 const { Pool } = require('pg');
 
 // Strip parameters pg doesn't understand (e.g. channel_binding from Neon URLs)
-const dbUrl = (process.env.DATABASE_URL || '').replace(/[&?]channel_binding=[^&]*/g, '');
+const rawUrl = (process.env.DATABASE_URL || '').trim();
+const dbUrl = rawUrl.replace(/[&?]channel_binding=[^&]*/g, '');
+
+console.log('[DB] DATABASE_URL present:', !!rawUrl);
+console.log('[DB] DATABASE_URL prefix:', rawUrl.slice(0, 30) || '(empty)');
+
 if (!dbUrl) {
-  console.error('FATAL: DATABASE_URL is not set');
+  console.error('FATAL: DATABASE_URL is not set — exiting');
   process.exit(1);
 }
 
