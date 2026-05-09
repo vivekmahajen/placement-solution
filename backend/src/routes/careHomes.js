@@ -189,7 +189,6 @@ router.get('/search', authenticate, async (req, res, next) => {
 
     const conditions = [
       'ch.is_active = TRUE',
-      'ch.is_verified = TRUE',
       'cha.rooms_available > 0',
     ];
     const params = [];
@@ -229,6 +228,7 @@ router.get('/search', authenticate, async (req, res, next) => {
     const result = await db.query(
       `SELECT ch.id, ch.facility_name, ch.address_line1, ch.city, ch.state, ch.zip,
               ch.county, ch.phone, ch.email, ch.website, ch.facility_type, ch.bed_capacity,
+              ch.is_verified,
               cha.room_type, cha.gender_preference, cha.rooms_available, cha.base_price_monthly,
               array_agg(DISTINCT chs.service_code) FILTER (WHERE chs.id IS NOT NULL) as services
        FROM care_homes ch
