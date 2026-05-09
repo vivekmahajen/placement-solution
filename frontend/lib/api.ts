@@ -11,8 +11,20 @@ class ApiError extends Error {
   }
 }
 
+function getToken(): string | null {
+  // Try in-memory store first (already hydrated)
+  const inMemory = useAuthStore.getState().token;
+  if (inMemory) return inMemory;
+  // Fallback: read directly from localStorage before Zustand has rehydrated
+  try {
+    const raw = localStorage.getItem('careconnect-auth');
+    if (raw) return JSON.parse(raw)?.state?.token ?? null;
+  } catch {}
+  return null;
+}
+
 async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const { token } = useAuthStore.getState();
+  const token = getToken();
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
