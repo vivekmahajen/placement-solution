@@ -17,13 +17,10 @@ interface LockedPatient {
   patient_id: string;
   lock_expires_at: string;
   status: string;
-  patient: {
-    id: string;
-    preferred_city: string;
-    preferred_zip: string;
-    room_type_preference: string;
-    services_needed: string[];
-  };
+  preferred_city: string;
+  preferred_zip: string;
+  room_type_preference: string;
+  services_needed: string[];
 }
 
 interface QueuePreview {
@@ -132,13 +129,13 @@ export default function PlacementAgentDashboard() {
                         {patientRef(a.patient_id)}
                       </td>
                       <td className="py-3 pr-4 text-slate-600">
-                        {a.patient.preferred_city || a.patient.preferred_zip || '—'}
+                        {a.preferred_city || a.preferred_zip || '—'}
                       </td>
                       <td className="py-3 pr-4 capitalize text-slate-600">
-                        {a.patient.room_type_preference || '—'}
+                        {a.room_type_preference || '—'}
                       </td>
                       <td className="py-3 pr-4 text-slate-600">
-                        {a.patient.services_needed?.length ?? 0} services
+                        {a.services_needed?.length ?? 0} services
                       </td>
                       <td className="py-3 pr-4">
                         <CountdownCell expiry={a.lock_expires_at} />
