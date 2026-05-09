@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
+    "build": "echo 'No build step required'",
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "migrate": "node src/db-migrate.js"
