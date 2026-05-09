@@ -21,6 +21,7 @@ import {
   BarChart3,
   LogOut,
   User,
+  Search,
 } from 'lucide-react';
 
 interface NavItem {
@@ -38,6 +39,7 @@ const navByRole: Record<string, NavItem[]> = {
   placement_agent: [
     { href: '/dashboard/placement-agent', label: 'Overview', icon: LayoutDashboard },
     { href: '/dashboard/placement-agent/queue', label: 'Queue', icon: ClipboardList },
+    { href: '/dashboard/placement-agent/search', label: 'Search Care Homes', icon: Search },
     { href: '/dashboard/placement-agent/coverage', label: 'Coverage Areas', icon: MapPin },
   ],
   referral_agent: [
