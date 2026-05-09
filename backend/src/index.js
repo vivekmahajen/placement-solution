@@ -31,6 +31,9 @@ const { startQueueJobs } = require('./services/queueJobs');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// Trust Railway/Vercel reverse proxy so rate-limiter and IP detection work correctly
+app.set('trust proxy', 1);
+
 // ---------------------------------------------------------------------------
 // Security & utility middleware
 // ---------------------------------------------------------------------------
