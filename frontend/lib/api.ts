@@ -15,10 +15,14 @@ function getToken(): string | null {
   // Try in-memory store first (already hydrated)
   const inMemory = useAuthStore.getState().token;
   if (inMemory) return inMemory;
-  // Fallback: read directly from localStorage before Zustand has rehydrated
+  // Fallback: read directly from localStorage before store is populated
   try {
     const raw = localStorage.getItem('careconnect-auth');
-    if (raw) return JSON.parse(raw)?.state?.token ?? null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Support both { token } and legacy { state: { token } } formats
+      return parsed?.token ?? parsed?.state?.token ?? null;
+    }
   } catch {}
   return null;
 }
