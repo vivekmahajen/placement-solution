@@ -277,7 +277,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       action: string;
       notes?: string;
     }) =>
-      patch(`/matches/${patientId}/home/${careHomeId}`, { action, notes }),
+      patch(`/queue/matches/${patientId}/home/${careHomeId}`, { action, notes }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['workingMatches', patientId] });
       refetchWorking();
