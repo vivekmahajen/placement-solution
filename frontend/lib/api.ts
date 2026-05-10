@@ -47,7 +47,15 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
   });
 
   if (response.status === 401) {
-    throw new ApiError('Unauthorized', 401);
+    // Clear stale auth and force re-login
+    try {
+      localStorage.removeItem('careconnect-auth');
+      useAuthStore.getState().clearAuth();
+    } catch {}
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login?session=expired';
+    }
+    throw new ApiError('Session expired. Please log in again.', 401);
   }
 
   const text = await response.text();
