@@ -440,7 +440,9 @@ export default function RegisterPage() {
               </>
             )}
 
-            {(selectedRole === 'placement_agent' || selectedRole === 'referral_agent') && (
+            {(selectedRole === 'placement_agent' || selectedRole === 'referral_agent' ||
+              selectedRole === 'case_manager' || selectedRole === 'discharge_planner' ||
+              selectedRole === 'medical_social_worker') && (
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <Input
@@ -511,9 +513,9 @@ export default function RegisterPage() {
               <div className="bg-blue-50 rounded-lg p-4 text-sm">
                 <p className="font-medium text-blue-800 mb-1">Trial Terms</p>
                 <p className="text-blue-700">
-                  Your {selectedPlan.label} account includes a 6-month free trial.
-                  After the trial, you&apos;ll be billed ${selectedPlan.price}/month.
-                  No credit card required to start.
+                  {selectedPlan.price === 0
+                    ? `Your ${selectedPlan.label} account is always free. No credit card required.`
+                    : `Your ${selectedPlan.label} account includes a 6-month free trial. After the trial, you'll be billed $${selectedPlan.price}/month. No credit card required to start.`}
                 </p>
               </div>
             )}
