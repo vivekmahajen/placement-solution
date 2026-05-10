@@ -95,6 +95,13 @@ export function put<T>(path: string, body?: unknown): Promise<T> {
   });
 }
 
+export function patch<T>(path: string, body?: unknown): Promise<T> {
+  return apiRequest<T>(path, {
+    method: 'PATCH',
+    body: body ? JSON.stringify(body) : undefined,
+  });
+}
+
 export function del<T>(path: string): Promise<T> {
   return apiRequest<T>(path, { method: 'DELETE' });
 }
