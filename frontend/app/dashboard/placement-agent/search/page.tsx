@@ -22,6 +22,7 @@ interface CareHomeResult {
   phone: string;
   email: string;
   facility_type: string;
+  is_verified: boolean;
   room_type: string;
   gender_preference: string;
   rooms_available: number;
@@ -225,11 +226,18 @@ export default function CareHomeSearchPage() {
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <div>
                         <h3 className="text-lg font-semibold text-slate-900">{home.facility_name}</h3>
-                        {home.facility_type && (
-                          <span className="inline-block mt-1 text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded capitalize">
-                            {home.facility_type.replace(/_/g, ' ')}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {home.facility_type && (
+                            <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded capitalize">
+                              {home.facility_type.replace(/_/g, ' ')}
+                            </span>
+                          )}
+                          {!home.is_verified && (
+                            <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-medium">
+                              Pending Verification
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-1.5 text-sm text-slate-500 mt-2">
                           <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
                           {home.address_line1}, {home.city}, {home.state} {home.zip}
