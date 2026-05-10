@@ -34,6 +34,23 @@ async function runMigrations() {
       )
     `);
 
+    // Bootstrap: if schema_migrations is empty but the DB already has the schema,
+    // mark 001_initial_schema.sql as executed so the runner doesn't try to re-run it.
+    const countResult = await client.query('SELECT COUNT(*) FROM schema_migrations');
+    if (parseInt(countResult.rows[0].count) === 0) {
+      const usersExists = await client.query(
+        `SELECT 1 FROM information_schema.tables
+         WHERE table_schema = 'public' AND table_name = 'users'`
+      );
+      if (usersExists.rows.length > 0) {
+        console.log('  [SEED] schema_migrations empty but schema exists — marking 001_initial_schema.sql as executed');
+        await client.query(
+          'INSERT INTO schema_migrations (filename) VALUES ($1) ON CONFLICT DO NOTHING',
+          ['001_initial_schema.sql']
+        );
+      }
+    }
+
     // Get list of already-executed migrations
     const executedResult = await client.query(
       'SELECT filename FROM schema_migrations ORDER BY id ASC'
