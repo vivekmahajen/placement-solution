@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/store';
 import { post } from '@/lib/api';
@@ -33,17 +33,17 @@ export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
 
-  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const sessionExpired = searchParams.get('session') === 'expired';
 
   useEffect(() => {
-    if (sessionExpired) setError('Your session expired. Please sign in again.');
-  }, [sessionExpired]);
+    if (new URLSearchParams(window.location.search).get('session') === 'expired') {
+      setError('Your session expired. Please sign in again.');
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
