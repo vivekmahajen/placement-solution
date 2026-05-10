@@ -10,8 +10,10 @@ interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
+  hydrated: boolean;
   setAuth: (user: User, token: string) => void;
   clearAuth: () => void;
+  hydrate: () => void;
 }
 
 const STORAGE_KEY = 'careconnect-auth';
@@ -45,6 +47,11 @@ function clearStorage() {
 export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   token: null,
+  hydrated: false,
+  hydrate: () => {
+    const { user, token } = loadFromStorage();
+    set({ user, token, hydrated: true });
+  },
   setAuth: (user, token) => {
     saveToStorage(user, token);
     set({ user, token });
