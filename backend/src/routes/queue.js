@@ -706,7 +706,7 @@ router.post('/place/:patientId', authenticate, requireRole('placement_agent'), a
 
     // 1. Update patient status to placed
     await client.query(
-      `UPDATE patients SET queue_status = 'placed', placed_at = NOW() WHERE id = $1`,
+      `UPDATE patients SET queue_status = 'placed' WHERE id = $1`,
       [patientId]
     );
 
