@@ -67,10 +67,11 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
   }
 
   if (!response.ok) {
+    const d = data as Record<string, unknown> | null;
     const message =
-      (data && typeof data === 'object' && 'message' in data && typeof (data as Record<string, unknown>).message === 'string')
-        ? (data as Record<string, string>).message
-        : `Request failed with status ${response.status}`;
+      (d && typeof d.message === 'string' && d.message) ||
+      (d && typeof d.error === 'string' && d.error) ||
+      `Request failed with status ${response.status}`;
     throw new ApiError(message, response.status);
   }
 

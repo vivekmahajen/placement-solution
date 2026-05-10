@@ -148,11 +148,15 @@ app.use((err, req, res, next) => {
   if (err.code === '22P02') {
     return res.status(400).json({ error: 'Invalid UUID format.' });
   }
+  if (err.code === '23514') {
+    return res.status(400).json({ error: `Value not allowed by database constraint: ${err.detail || err.message}` });
+  }
+  if (err.code === '42703') {
+    return res.status(500).json({ error: `Database column error: ${err.message}` });
+  }
 
   const status = err.status || err.statusCode || 500;
-  const message = process.env.NODE_ENV === 'production'
-    ? 'An internal server error occurred.'
-    : err.message || 'Internal server error';
+  const message = err.message || 'Internal server error';
 
   return res.status(status).json({ error: message });
 });
