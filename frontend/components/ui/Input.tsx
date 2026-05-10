@@ -1,1 +1,46 @@
-aW1wb3J0IHsgY24gfSBmcm9tICdAL2xpYi91dGlscyc7CmltcG9ydCB7IElucHV0SFRNTEF0dHJpYnV0ZXMsIGZvcndhcmRSZWYgfSBmcm9tICdyZWFjdCc7CgppbnRlcmZhY2UgSW5wdXRQcm9wcyBleHRlbmRzIElucHV0SFRNTEF0dHJpYnV0ZXM8SFRNTElucHV0RWxlbWVudD4gewogIGxhYmVsPzogc3RyaW5nOwogIGVycm9yPzogc3RyaW5nOwogIGhpbnQ/OiBzdHJpbmc7Cn0KCmNvbnN0IElucHV0ID0gZm9yd2FyZFJlZjxIVE1MSW5wdXRFbGVtZW50LCBJbnB1dFByb3BzPigKICAoeyBsYWJlbCwgZXJyb3IsIGhpbnQsIGlkLCBjbGFzc05hbWUsIC4uLnByb3BzIH0sIHJlZikgPT4gewogICAgcmV0dXJuICgKICAgICAgPGRpdiBjbGFzc05hbWU9InctZnVsbCI+CiAgICAgICAge2xhYmVsICYmICgKICAgICAgICAgIDxsYWJlbCBodG1sRm9yPXtpZH0gY2xhc3NOYW1lPSJibG9jayB0ZXh0LXNtIGZvbnQtbWVkaXVtIHRleHQtWyMxQTJCNEFdIG1iLTEiPgogICAgICAgICAgICB7bGFiZWx9CiAgICAgICAgICAgIHtwcm9wcy5yZXF1aXJlZCAmJiA8c3BhbiBjbGFzc05hbWU9InRleHQtWyNDMDM5MkJdIG1sLTEiPio8L3NwYW4+fQogICAgICAgICAgPC9sYWJlbD4KICAgICAgICApfQogICAgICAgIDxpbnB1dAogICAgICAgICAgcmVmPXtyZWZ9CiAgICAgICAgICBpZD17aWR9CiAgICAgICAgICBjbGFzc05hbWU9e2NuKAogICAgICAgICAgICAnYmxvY2sgdy1mdWxsIHJvdW5kZWQtbGcgYm9yZGVyIGJnLXdoaXRlIHB4LTMgcHktMiB0ZXh0LXNtIHBsYWNlaG9sZGVyLVsjN0E4RkFEXScsCiAgICAgICAgICAgICdmb2N1czpib3JkZXItWyMwMDJCNUNdIGZvY3VzOm91dGxpbmUtbm9uZSBmb2N1czpyaW5nLTIgZm9jdXM6cmluZy1bIzAwMkI1Q10vMjAgdHJhbnNpdGlvbi1jb2xvcnMnLAogICAgICAgICAgICBlcnJvcgogICAgICAgICAgICAgID8gJ2JvcmRlci1bI0MwMzkyQl0gZm9jdXM6Ym9yZGVyLVsjQzAzOTJCXSBmb2N1czpyaW5nLVsjQzAzOTJCXS8yMCcKICAgICAgICAgICAgICA6ICdib3JkZXItWyNENkUwRUVdJywKICAgICAgICAgICAgY2xhc3NOYW1lCiAgICAgICAgICApfQogICAgICAgICAgey4uLnByb3BzfQogICAgICAgIC8+CiAgICAgICAge2hpbnQgJiYgIWVycm9yICYmICgKICAgICAgICAgIDxwIGNsYXNzTmFtZT0ibXQtMSB0ZXh0LXhzIHRleHQtWyM3QThGQURdIj57aGludH08L3A+CiAgICAgICAgKX0KICAgICAgICB7ZXJyb3IgJiYgKAogICAgICAgICAgPHAgY2xhc3NOYW1lPSJtdC0xIHRleHQteHMgdGV4dC1bI0MwMzkyQl0iPntlcnJvcn08L3A+CiAgICAgICAgKX0KICAgICAgPC9kaXY+CiAgICApOwogIH0KKTsKCklucHV0LmRpc3BsYXlOYW1lID0gJ0lucHV0JzsKCmV4cG9ydCBkZWZhdWx0IElucHV0Owo=
+import { cn } from '@/lib/utils';
+import { InputHTMLAttributes, forwardRef } from 'react';
+
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+  hint?: string;
+}
+
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ label, error, hint, id, className, ...props }, ref) => {
+    return (
+      <div className="w-full">
+        {label && (
+          <label htmlFor={id} className="block text-sm font-medium text-[#1A2B4A] mb-1">
+            {label}
+            {props.required && <span className="text-[#C0392B] ml-1">*</span>}
+          </label>
+        )}
+        <input
+          ref={ref}
+          id={id}
+          className={cn(
+            'block w-full rounded-lg border bg-white px-3 py-2 text-sm placeholder-[#7A8FAD]',
+            'focus:border-[#002B5C] focus:outline-none focus:ring-2 focus:ring-[#002B5C]/20 transition-colors',
+            error
+              ? 'border-[#C0392B] focus:border-[#C0392B] focus:ring-[#C0392B]/20'
+              : 'border-[#D6E0EE]',
+            className
+          )}
+          {...props}
+        />
+        {hint && !error && (
+          <p className="mt-1 text-xs text-[#7A8FAD]">{hint}</p>
+        )}
+        {error && (
+          <p className="mt-1 text-xs text-[#C0392B]">{error}</p>
+        )}
+      </div>
+    );
+  }
+);
+
+Input.displayName = 'Input';
+
+export default Input;
