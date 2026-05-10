@@ -213,27 +213,25 @@ router.get('/matches/:patientId', authenticate, requireRole('placement_agent', '
     // Build mandatory filter conditions
     const conditions = [
       'ch.is_active = TRUE',
-      'ch.is_verified = TRUE',
-      'cha.rooms_available > 0',
     ];
     const params = [];
     let paramIdx = 1;
 
-    // Budget filter
+    // Budget filter (only apply when availability record exists)
     if (patient.budget_max) {
-      conditions.push(`cha.base_price_monthly <= $${paramIdx}`);
+      conditions.push(`(cha.base_price_monthly IS NULL OR cha.base_price_monthly <= $${paramIdx})`);
       params.push(patient.budget_max);
       paramIdx++;
     }
     if (patient.budget_min) {
-      conditions.push(`cha.base_price_monthly >= $${paramIdx}`);
+      conditions.push(`(cha.base_price_monthly IS NULL OR cha.base_price_monthly >= $${paramIdx})`);
       params.push(patient.budget_min);
       paramIdx++;
     }
 
-    // Room type filter
+    // Room type filter (only apply when availability record exists)
     if (patient.room_type_preference && patient.room_type_preference !== 'either') {
-      conditions.push(`cha.room_type = $${paramIdx}`);
+      conditions.push(`(cha.room_type IS NULL OR cha.room_type = $${paramIdx})`);
       params.push(patient.room_type_preference);
       paramIdx++;
     }
@@ -260,9 +258,9 @@ router.get('/matches/:patientId', authenticate, requireRole('placement_agent', '
       conditions.push(`(${locationConditions.join(' OR ')})`);
     }
 
-    // Gender filter
+    // Gender filter (only apply when availability record exists)
     if (patient.sex && patient.sex !== 'non_binary' && patient.sex !== 'prefer_not_to_say') {
-      conditions.push(`(cha.gender_preference = 'any' OR cha.gender_preference = $${paramIdx})`);
+      conditions.push(`(cha.gender_preference IS NULL OR cha.gender_preference = 'any' OR cha.gender_preference = $${paramIdx})`);
       params.push(patient.sex);
       paramIdx++;
     }
@@ -274,10 +272,10 @@ router.get('/matches/:patientId', authenticate, requireRole('placement_agent', '
               cha.room_type, cha.gender_preference, cha.rooms_available, cha.base_price_monthly,
               array_agg(DISTINCT chs.service_code) FILTER (WHERE chs.id IS NOT NULL) as services
        FROM care_homes ch
-       JOIN care_home_availability cha ON cha.care_home_id = ch.id
+       LEFT JOIN care_home_availability cha ON cha.care_home_id = ch.id
        LEFT JOIN care_home_services chs ON chs.care_home_id = ch.id AND chs.is_available = TRUE
        WHERE ${whereClause}
-       GROUP BY ch.id, cha.id
+       GROUP BY ch.id, cha.id, cha.room_type, cha.gender_preference, cha.rooms_available, cha.base_price_monthly
        LIMIT 50`,
       params
     );
