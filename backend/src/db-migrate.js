@@ -18,7 +18,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-const MIGRATIONS_DIR = path.join(__dirname, '../../database/migrations');
+const MIGRATIONS_DIR = path.join(__dirname, '../database/migrations');
 
 async function runMigrations() {
   const client = await pool.connect();
