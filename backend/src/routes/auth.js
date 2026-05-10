@@ -39,8 +39,14 @@ function handleValidationErrors(req, res) {
   return false;
 }
 
-// Monthly amounts per role
-const MONTHLY_AMOUNTS = { care_home: 49, placement_agent: 99, referral_agent: 19 };
+// Monthly amounts per role (0 = free)
+const MONTHLY_AMOUNTS = {
+  care_home: 49, placement_agent: 99, referral_agent: 19,
+  case_manager: 0, discharge_planner: 0, medical_social_worker: 0,
+};
+
+// Roles that share the referral_agents profile table
+const REFERRAL_LIKE_ROLES = ['referral_agent', 'case_manager', 'discharge_planner', 'medical_social_worker'];
 
 // ---------------------------------------------------------------------------
 // POST /register
@@ -50,7 +56,7 @@ router.post(
   [
     body('email').isEmail().normalizeEmail(),
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-    body('role').isIn(['care_home', 'placement_agent', 'referral_agent']),
+    body('role').isIn(['care_home', 'placement_agent', 'referral_agent', 'case_manager', 'discharge_planner', 'medical_social_worker']),
   ],
   async (req, res, next) => {
     if (handleValidationErrors(req, res)) return;
@@ -124,7 +130,7 @@ router.post(
            address_line1 || '', city || '', state || '', zip || '', phone || '',
            agent_email || email, bio || null]
         );
-      } else if (role === 'referral_agent') {
+      } else if (REFERRAL_LIKE_ROLES.includes(role)) {
         const {
           first_name, last_name, company_name,
           address_line1, city, state, zip, phone, agent_email,
