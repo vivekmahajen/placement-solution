@@ -247,10 +247,10 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   function getWorkflowStep(): number {
     if (isPlaced) return 5;
     if (shortlistedCount > 0) return 4;
-    const hasVisitCompleted = workingMatches.some((m) => m.visit_completed_at);
-    if (hasVisitCompleted) return 3;
-    const hasContactedAny = workingMatches.some((m) => m.contacted_at);
-    if (hasContactedAny) return 2;
+    const hasVisitScheduled = workingMatches.some((m) => m.visit_scheduled_at);
+    if (hasVisitScheduled) return 3;
+    const hasAgreementSigned = workingMatches.some((m) => m.agreement_signed_at);
+    if (hasAgreementSigned) return 2;
     if (workingMatches.length > 0) return 2;
     return 1;
   }
