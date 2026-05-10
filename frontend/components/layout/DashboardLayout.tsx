@@ -101,9 +101,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
 
+  const hydrated = useAuthStore((s) => s.hydrated);
+  const hydrate = useAuthStore((s) => s.hydrate);
+
   const navItems = user ? (navByRole[user.role] ?? []) : [];
 
   useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
+  useEffect(() => {
+    if (!hydrated) return;
     if (!user) {
       router.replace('/login');
       return;
@@ -112,7 +120,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     if (allowed && !pathname.startsWith(allowed)) {
       router.replace(allowed);
     }
-  }, [user, pathname, router]);
+  }, [hydrated, user, pathname, router]);
 
   function handleLogout() {
     clearAuth();
