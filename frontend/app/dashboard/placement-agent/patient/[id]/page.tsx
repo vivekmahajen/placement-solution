@@ -608,6 +608,12 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                     Homes saved. Switch to the &quot;Work Homes&quot; tab to continue.
                   </div>
                 )}
+
+                {selectMutation.isError && (
+                  <div className="mt-3 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+                    {(selectMutation.error as Error)?.message ?? 'Failed to save selection. Please try again.'}
+                  </div>
+                )}
               </>
             )}
           </Card>
