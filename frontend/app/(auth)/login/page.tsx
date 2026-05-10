@@ -40,8 +40,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' &&
-        new URLSearchParams(window.location.search).get('session') === 'expired') {
+    if (new URLSearchParams(window.location.search).get('session') === 'expired') {
       setError('Your session expired. Please sign in again.');
     }
   }, []);
