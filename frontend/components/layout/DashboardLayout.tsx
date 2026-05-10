@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
@@ -81,6 +81,16 @@ const roleLabelMap: Record<string, string> = {
   medical_social_worker: 'Medical Social Worker',
 };
 
+const allowedPrefixByRole: Record<string, string> = {
+  care_home: '/dashboard/care-home',
+  placement_agent: '/dashboard/placement-agent',
+  referral_agent: '/dashboard/referral-agent',
+  admin: '/dashboard/admin',
+  case_manager: '/dashboard/referral-agent',
+  discharge_planner: '/dashboard/referral-agent',
+  medical_social_worker: '/dashboard/referral-agent',
+};
+
 interface DashboardLayoutProps {
   children: ReactNode;
 }
@@ -92,6 +102,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const clearAuth = useAuthStore((s) => s.clearAuth);
 
   const navItems = user ? (navByRole[user.role] ?? []) : [];
+
+  useEffect(() => {
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+    const allowed = allowedPrefixByRole[user.role];
+    if (allowed && !pathname.startsWith(allowed)) {
+      router.replace(allowed);
+    }
+  }, [user, pathname, router]);
 
   function handleLogout() {
     clearAuth();
