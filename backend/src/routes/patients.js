@@ -135,7 +135,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
         return res.status(403).json({ error: 'Access denied.' });
       }
     } else if (req.user.role === 'placement_agent') {
-      // Can view if patient is in their coverage or they have an active lock
+      // Can view if they have any assignment for this patient (active or expired lock)
       const agentResult = await db.query(
         'SELECT id FROM placement_agents WHERE user_id = $1', [req.user.id]
       );
@@ -143,11 +143,11 @@ router.get('/:id', authenticate, async (req, res, next) => {
 
       const lockCheck = await db.query(
         `SELECT id FROM queue_assignments
-         WHERE patient_id = $1 AND placement_agent_id = $2 AND status = 'locked'`,
+         WHERE patient_id = $1 AND placement_agent_id = $2`,
         [id, agentResult.rows[0].id]
       );
       if (!lockCheck.rows.length) {
-        return res.status(403).json({ error: 'Access denied. You do not have an active lock on this patient.' });
+        return res.status(403).json({ error: 'Access denied. You do not have an assignment for this patient.' });
       }
     }
 
