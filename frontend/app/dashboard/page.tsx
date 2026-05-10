@@ -9,6 +9,9 @@ const ROLE_REDIRECTS: Record<string, string> = {
   placement_agent: '/dashboard/placement-agent',
   referral_agent: '/dashboard/referral-agent',
   admin: '/dashboard/admin',
+  case_manager: '/dashboard/referral-agent',
+  discharge_planner: '/dashboard/referral-agent',
+  medical_social_worker: '/dashboard/referral-agent',
 };
 
 export default function DashboardPage() {
