@@ -47,6 +47,21 @@ const navByRole: Record<string, NavItem[]> = {
     { href: '/dashboard/referral-agent/new-patient', label: 'Add Patient', icon: UserPlus },
     { href: '/dashboard/referral-agent/patients', label: 'My Patients', icon: Users },
   ],
+  case_manager: [
+    { href: '/dashboard/referral-agent', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/referral-agent/new-patient', label: 'Add Patient', icon: UserPlus },
+    { href: '/dashboard/referral-agent/patients', label: 'My Patients', icon: Users },
+  ],
+  discharge_planner: [
+    { href: '/dashboard/referral-agent', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/referral-agent/new-patient', label: 'Add Patient', icon: UserPlus },
+    { href: '/dashboard/referral-agent/patients', label: 'My Patients', icon: Users },
+  ],
+  medical_social_worker: [
+    { href: '/dashboard/referral-agent', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/referral-agent/new-patient', label: 'Add Patient', icon: UserPlus },
+    { href: '/dashboard/referral-agent/patients', label: 'My Patients', icon: Users },
+  ],
   admin: [
     { href: '/dashboard/admin', label: 'Overview', icon: LayoutDashboard },
     { href: '/dashboard/admin/users', label: 'Users', icon: Users },
@@ -61,6 +76,9 @@ const roleLabelMap: Record<string, string> = {
   placement_agent: 'Placement Agent',
   referral_agent: 'Referral Agent',
   admin: 'Administrator',
+  case_manager: 'Case Manager',
+  discharge_planner: 'Discharge Planner',
+  medical_social_worker: 'Medical Social Worker',
 };
 
 interface DashboardLayoutProps {

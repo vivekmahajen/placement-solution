@@ -8,6 +8,8 @@ const { requireRole } = require('../middleware/roleCheck');
 
 const router = express.Router();
 
+const REFERRAL_LIKE_ROLES = ['referral_agent', 'case_manager', 'discharge_planner', 'medical_social_worker'];
+
 function handleValidationErrors(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -25,7 +27,7 @@ router.get('/stats', authenticate, async (req, res, next) => {
     let whereClause = '';
     let params = [];
 
-    if (req.user.role === 'referral_agent') {
+    if (REFERRAL_LIKE_ROLES.includes(req.user.role)) {
       const agentResult = await db.query(
         'SELECT id FROM referral_agents WHERE user_id = $1', [req.user.id]
       );
@@ -73,7 +75,7 @@ router.get('/', authenticate, async (req, res, next) => {
          ORDER BY p.created_at DESC`,
         []
       );
-    } else if (req.user.role === 'referral_agent') {
+    } else if (REFERRAL_LIKE_ROLES.includes(req.user.role)) {
       const agentResult = await db.query(
         'SELECT id FROM referral_agents WHERE user_id = $1', [req.user.id]
       );
@@ -125,7 +127,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
     const patient = result.rows[0];
 
     // Authorization check
-    if (req.user.role === 'referral_agent') {
+    if (REFERRAL_LIKE_ROLES.includes(req.user.role)) {
       const agentResult = await db.query(
         'SELECT id FROM referral_agents WHERE user_id = $1', [req.user.id]
       );
@@ -169,7 +171,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
 router.post(
   '/',
   authenticate,
-  requireRole('referral_agent'),
+  requireRole('referral_agent', 'case_manager', 'discharge_planner', 'medical_social_worker'),
   [
     body('first_name').notEmpty(),
     body('last_name').notEmpty(),
@@ -184,7 +186,7 @@ router.post(
         'SELECT id FROM referral_agents WHERE user_id = $1', [req.user.id]
       );
       if (!agentResult.rows.length) {
-        return res.status(400).json({ error: 'Referral agent profile not found. Please create your profile first.' });
+        return res.status(400).json({ error: 'Agent profile not found. Please complete your profile first.' });
       }
       const referralAgentId = agentResult.rows[0].id;
 
@@ -241,7 +243,7 @@ router.post(
 // ---------------------------------------------------------------------------
 // PUT /:id - referral agent updates own patient
 // ---------------------------------------------------------------------------
-router.put('/:id', authenticate, requireRole('referral_agent', 'admin'), async (req, res, next) => {
+router.put('/:id', authenticate, requireRole('referral_agent', 'case_manager', 'discharge_planner', 'medical_social_worker', 'admin'), async (req, res, next) => {
   const client = await db.getClient();
   try {
     const { id } = req.params;
@@ -250,8 +252,8 @@ router.put('/:id', authenticate, requireRole('referral_agent', 'admin'), async (
 
     const patient = patientResult.rows[0];
 
-    // Ownership check for referral agents
-    if (req.user.role === 'referral_agent') {
+    // Ownership check for referral-like roles
+    if (REFERRAL_LIKE_ROLES.includes(req.user.role)) {
       const agentResult = await client.query(
         'SELECT id FROM referral_agents WHERE user_id = $1', [req.user.id]
       );
@@ -330,14 +332,14 @@ router.put('/:id', authenticate, requireRole('referral_agent', 'admin'), async (
 // ---------------------------------------------------------------------------
 // DELETE /:id - soft cancel patient
 // ---------------------------------------------------------------------------
-router.delete('/:id', authenticate, requireRole('referral_agent', 'admin'), async (req, res, next) => {
+router.delete('/:id', authenticate, requireRole('referral_agent', 'case_manager', 'discharge_planner', 'medical_social_worker', 'admin'), async (req, res, next) => {
   try {
     const { id } = req.params;
     const patientResult = await db.query('SELECT * FROM patients WHERE id = $1', [id]);
     if (!patientResult.rows.length) return res.status(404).json({ error: 'Patient not found.' });
 
     const patient = patientResult.rows[0];
-    if (req.user.role === 'referral_agent') {
+    if (REFERRAL_LIKE_ROLES.includes(req.user.role)) {
       const agentResult = await db.query(
         'SELECT id FROM referral_agents WHERE user_id = $1', [req.user.id]
       );

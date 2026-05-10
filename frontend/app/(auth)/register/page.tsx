@@ -10,7 +10,7 @@ import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import { AlertCircle, CheckCircle, Building2, Users, UserCheck, ChevronLeft } from 'lucide-react';
 
-type Role = 'care_home' | 'placement_agent' | 'referral_agent';
+type Role = 'care_home' | 'placement_agent' | 'referral_agent' | 'case_manager' | 'discharge_planner' | 'medical_social_worker';
 
 interface RoleCard {
   role: Role;
@@ -46,6 +46,30 @@ const roleCards: RoleCard[] = [
     icon: UserCheck,
     color: 'indigo',
   },
+  {
+    role: 'case_manager',
+    label: 'Case Manager',
+    price: 0,
+    description: 'For case managers coordinating senior care placements.',
+    icon: UserCheck,
+    color: 'green',
+  },
+  {
+    role: 'discharge_planner',
+    label: 'Discharge Planner',
+    price: 0,
+    description: 'For hospital discharge planners placing patients into care.',
+    icon: UserCheck,
+    color: 'green',
+  },
+  {
+    role: 'medical_social_worker',
+    label: 'Medical Social Worker',
+    price: 0,
+    description: 'For medical social workers helping patients find senior care.',
+    icon: UserCheck,
+    color: 'green',
+  },
 ];
 
 const FACILITY_TYPES = [
@@ -74,6 +98,9 @@ const ROLE_REDIRECTS: Record<string, string> = {
   care_home: '/dashboard/care-home',
   placement_agent: '/dashboard/placement-agent',
   referral_agent: '/dashboard/referral-agent',
+  case_manager: '/dashboard/referral-agent',
+  discharge_planner: '/dashboard/referral-agent',
+  medical_social_worker: '/dashboard/referral-agent',
 };
 
 export default function RegisterPage() {
@@ -240,12 +267,14 @@ export default function RegisterPage() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
                         <h3 className="font-semibold text-slate-900">{card.label}</h3>
-                        <span className="text-slate-600 text-sm font-medium">${card.price}/mo</span>
+                        <span className="text-slate-600 text-sm font-medium">
+                          {card.price === 0 ? 'Free' : `$${card.price}/mo`}
+                        </span>
                       </div>
                       <p className="text-sm text-slate-500">{card.description}</p>
                       <div className="mt-2 inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-xs font-medium px-2.5 py-1 rounded-full">
                         <CheckCircle className="w-3 h-3" />
-                        6 months free, then ${card.price}/mo
+                        {card.price === 0 ? 'Always free' : `6 months free, then $${card.price}/mo`}
                       </div>
                     </div>
                   </div>
