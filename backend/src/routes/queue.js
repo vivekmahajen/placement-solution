@@ -399,14 +399,14 @@ router.post('/matches/:patientId/select', authenticate, requireRole('placement_a
     if (!agentResult.rows.length) return res.status(403).json({ error: 'Access denied.' });
     const agentId = agentResult.rows[0].id;
 
-    // Verify lock
+    // Verify assignment (lock may have expired but agent still owns this patient)
     const lockCheck = await db.query(
-      `SELECT id FROM queue_assignments
-       WHERE patient_id = $1 AND placement_agent_id = $2 AND status = 'locked'`,
+      `SELECT id, status FROM queue_assignments
+       WHERE patient_id = $1 AND placement_agent_id = $2`,
       [patientId, agentId]
     );
     if (!lockCheck.rows.length) {
-      return res.status(403).json({ error: 'You do not have an active lock on this patient.' });
+      return res.status(403).json({ error: 'You do not have an assignment for this patient.' });
     }
 
     // Update matches to selected
@@ -541,11 +541,11 @@ router.patch('/matches/:patientId/home/:careHomeId', authenticate, requireRole('
     const agentId = agentResult.rows[0].id;
 
     const lockCheck = await db.query(
-      `SELECT id FROM queue_assignments WHERE patient_id = $1 AND placement_agent_id = $2 AND status = 'locked'`,
+      `SELECT id, status FROM queue_assignments WHERE patient_id = $1 AND placement_agent_id = $2`,
       [patientId, agentId]
     );
     if (!lockCheck.rows.length) {
-      return res.status(403).json({ error: 'You do not have an active lock on this patient.' });
+      return res.status(403).json({ error: 'You do not have an assignment for this patient.' });
     }
 
     let updateQuery;
@@ -619,11 +619,11 @@ router.get('/matches/:patientId/selected', authenticate, requireRole('placement_
     const agentId = agentResult.rows[0].id;
 
     const lockCheck = await db.query(
-      `SELECT id FROM queue_assignments WHERE patient_id = $1 AND placement_agent_id = $2 AND status = 'locked'`,
+      `SELECT id, status FROM queue_assignments WHERE patient_id = $1 AND placement_agent_id = $2`,
       [patientId, agentId]
     );
     if (!lockCheck.rows.length) {
-      return res.status(403).json({ error: 'You do not have an active lock on this patient.' });
+      return res.status(403).json({ error: 'You do not have an assignment for this patient.' });
     }
 
     const result = await db.query(
