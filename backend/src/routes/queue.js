@@ -716,16 +716,16 @@ router.post('/place/:patientId', authenticate, requireRole('placement_agent'), a
       [patientId, agentId]
     );
 
-    // 3. Mark selected care home as family_selected
+    // 3. Mark selected care home as selected
     await client.query(
-      `UPDATE care_home_matches SET status = 'family_selected'
+      `UPDATE care_home_matches SET status = 'selected'
        WHERE patient_id = $1 AND placement_agent_id = $2 AND care_home_id = $3`,
       [patientId, agentId, care_home_id]
     );
 
-    // 4. Mark other shortlisted homes as family_rejected
+    // 4. Mark other shortlisted homes as rejected
     await client.query(
-      `UPDATE care_home_matches SET status = 'family_rejected'
+      `UPDATE care_home_matches SET status = 'rejected'
        WHERE patient_id = $1 AND placement_agent_id = $2 AND care_home_id != $3 AND is_shortlisted = TRUE`,
       [patientId, agentId, care_home_id]
     );
