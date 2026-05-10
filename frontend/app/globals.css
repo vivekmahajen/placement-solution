@@ -40,21 +40,41 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-[#002B5C] hover:bg-[#001E42] text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-[#002B5C] text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary:hover {
+    background-color: #001E42;
   }
   .btn-secondary {
-    @apply bg-[#EBF0F8] hover:bg-[#D6E0EE] text-[#1A2B4A] font-medium px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-[#EBF0F8] text-[#1A2B4A] font-medium px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary:hover {
+    background-color: #D6E0EE;
   }
   .btn-danger {
-    @apply bg-[#C0392B] hover:bg-[#A93226] text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-[#C0392B] text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-danger:hover {
+    background-color: #A93226;
   }
   .card {
-    @apply bg-white rounded-xl border border-[#D6E0EE] shadow-[0_1px_4px_rgba(0,43,92,0.08)];
+    @apply bg-white rounded-xl border border-[#D6E0EE];
+    box-shadow: 0 1px 4px rgba(0,43,92,0.08);
   }
   .input-base {
-    @apply block w-full rounded-lg border border-[#D6E0EE] bg-white px-3 py-2 text-sm placeholder-[#7A8FAD] focus:border-[#002B5C] focus:outline-none focus:ring-2 focus:ring-[#002B5C]/20 transition-colors;
+    @apply block w-full rounded-lg border border-[#D6E0EE] bg-white px-3 py-2 text-sm transition-colors;
+    color: #1A2B4A;
+  }
+  .input-base::placeholder {
+    color: #7A8FAD;
+  }
+  .input-base:focus {
+    outline: none;
+    border-color: #002B5C;
+    box-shadow: 0 0 0 2px rgba(0,43,92,0.2);
   }
   .label-base {
-    @apply block text-sm font-medium text-[#1A2B4A] mb-1;
+    @apply block text-sm font-medium mb-1;
+    color: #1A2B4A;
   }
 }
