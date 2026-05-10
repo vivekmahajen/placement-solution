@@ -187,10 +187,10 @@ router.get('/search', authenticate, async (req, res, next) => {
   try {
     const { city, zip, gender, room_type, budget_min, budget_max } = req.query;
 
-    const conditions = [
-      'ch.is_active = TRUE',
-      'cha.rooms_available > 0',
-    ];
+    // Availability filters are only applied when the user specifies them
+    const hasAvailabilityFilter = room_type || budget_min || budget_max || (gender && gender !== 'any');
+
+    const conditions = ['ch.is_active = TRUE'];
     const params = [];
     let idx = 1;
 
@@ -204,26 +204,31 @@ router.get('/search', authenticate, async (req, res, next) => {
       params.push(zip);
       idx++;
     }
-    if (gender && gender !== 'any') {
-      conditions.push(`(cha.gender_preference = 'any' OR cha.gender_preference = $${idx})`);
-      params.push(gender);
-      idx++;
+    if (hasAvailabilityFilter) {
+      conditions.push('cha.rooms_available > 0');
+      if (gender && gender !== 'any') {
+        conditions.push(`(cha.gender_preference = 'any' OR cha.gender_preference = $${idx})`);
+        params.push(gender);
+        idx++;
+      }
+      if (room_type) {
+        conditions.push(`cha.room_type = $${idx}`);
+        params.push(room_type);
+        idx++;
+      }
+      if (budget_min) {
+        conditions.push(`cha.base_price_monthly >= $${idx}`);
+        params.push(parseFloat(budget_min));
+        idx++;
+      }
+      if (budget_max) {
+        conditions.push(`cha.base_price_monthly <= $${idx}`);
+        params.push(parseFloat(budget_max));
+        idx++;
+      }
     }
-    if (room_type) {
-      conditions.push(`cha.room_type = $${idx}`);
-      params.push(room_type);
-      idx++;
-    }
-    if (budget_min) {
-      conditions.push(`cha.base_price_monthly >= $${idx}`);
-      params.push(parseFloat(budget_min));
-      idx++;
-    }
-    if (budget_max) {
-      conditions.push(`cha.base_price_monthly <= $${idx}`);
-      params.push(parseFloat(budget_max));
-      idx++;
-    }
+
+    const joinType = hasAvailabilityFilter ? 'JOIN' : 'LEFT JOIN';
 
     const result = await db.query(
       `SELECT ch.id, ch.facility_name, ch.address_line1, ch.city, ch.state, ch.zip,
@@ -232,7 +237,7 @@ router.get('/search', authenticate, async (req, res, next) => {
               cha.room_type, cha.gender_preference, cha.rooms_available, cha.base_price_monthly,
               array_agg(DISTINCT chs.service_code) FILTER (WHERE chs.id IS NOT NULL) as services
        FROM care_homes ch
-       JOIN care_home_availability cha ON cha.care_home_id = ch.id
+       ${joinType} care_home_availability cha ON cha.care_home_id = ch.id
        LEFT JOIN care_home_services chs ON chs.care_home_id = ch.id AND chs.is_available = TRUE
        WHERE ${conditions.join(' AND ')}
        GROUP BY ch.id, cha.id
