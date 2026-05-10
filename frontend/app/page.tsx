@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
-import { Heart, Users, Building2, UserCheck, CheckCircle, ArrowRight } from 'lucide-react';
+import { Plus, Users, Building2, UserCheck, CheckCircle, ArrowRight, Heart } from 'lucide-react';
 
 const plans = [
   {
@@ -50,13 +50,13 @@ const roles = [
     icon: UserCheck,
     title: 'Referral Agents',
     description: 'Submit patient referrals and track placement progress from intake to placement.',
-    color: 'bg-blue-50 text-blue-600',
+    color: 'bg-[#E8F0FA] text-[#002B5C]',
   },
   {
     icon: Building2,
     title: 'Care Homes',
     description: 'Manage room availability, list services, and receive qualified patient placements.',
-    color: 'bg-teal-50 text-teal-600',
+    color: 'bg-[#E8F2FB] text-[#0079C1]',
   },
   {
     icon: Users,
@@ -68,7 +68,7 @@ const roles = [
     icon: Heart,
     title: 'Administrators',
     description: 'Oversee the platform, verify facilities, and manage subscriptions.',
-    color: 'bg-rose-50 text-rose-600',
+    color: 'bg-[#E8F0FA] text-[#1A4B8C]',
   },
 ];
 
@@ -78,14 +78,14 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-teal-600 text-white py-24 px-4">
+      <section className="relative bg-gradient-to-br from-[#002B5C] via-[#001E42] to-[#0079C1] text-white py-24 px-4">
         <div className="absolute inset-0 bg-black/10" />
         <div className="relative max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium mb-6">
-            <Heart className="w-4 h-4" />
+            <Plus className="w-4 h-4" strokeWidth={3} />
             Trusted Senior Care Placement
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight tracking-tight">
             CareConnect
           </h1>
           <p className="text-2xl md:text-3xl font-light mb-4 text-blue-100">
@@ -98,14 +98,14 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/login"
-              className="inline-flex items-center justify-center gap-2 bg-white text-blue-700 font-semibold px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors text-lg"
+              className="inline-flex items-center justify-center gap-2 bg-white text-[#002B5C] font-semibold px-8 py-3 rounded-lg hover:bg-[#E8F0FA] transition-colors text-lg"
             >
               Sign In
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
               href="/register"
-              className="inline-flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-semibold px-8 py-3 rounded-lg transition-colors text-lg"
+              className="inline-flex items-center justify-center gap-2 bg-[#0079C1] hover:bg-[#005A8E] text-white font-semibold px-8 py-3 rounded-lg transition-colors text-lg"
             >
               Get Started Free
             </Link>
@@ -117,11 +117,11 @@ export default function HomePage() {
       </section>
 
       {/* Roles */}
-      <section className="py-20 px-4 bg-slate-50">
+      <section className="py-20 px-4 bg-[#F4F7FC]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Built for Every Role in Senior Care</h2>
-            <p className="text-slate-600 max-w-xl mx-auto">
+            <h2 className="text-3xl font-bold text-[#1A2B4A] mb-4">Built for Every Role in Senior Care</h2>
+            <p className="text-[#4A5D7A] max-w-xl mx-auto">
               CareConnect serves all stakeholders in the senior care placement process with
               role-specific tools and workflows.
             </p>
@@ -130,12 +130,15 @@ export default function HomePage() {
             {roles.map((role) => {
               const Icon = role.icon;
               return (
-                <div key={role.title} className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                <div
+                  key={role.title}
+                  className="bg-white rounded-xl p-6 border border-[#D6E0EE] border-l-4 border-l-[#002B5C] shadow-[0_1px_4px_rgba(0,43,92,0.08)] hover:shadow-[0_4px_12px_rgba(0,43,92,0.12)] transition-shadow"
+                >
                   <div className={`inline-flex p-3 rounded-lg mb-4 ${role.color}`}>
                     <Icon className="w-6 h-6" />
                   </div>
-                  <h3 className="font-semibold text-slate-900 mb-2">{role.title}</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">{role.description}</p>
+                  <h3 className="font-semibold text-[#1A2B4A] mb-2">{role.title}</h3>
+                  <p className="text-sm text-[#4A5D7A] leading-relaxed">{role.description}</p>
                 </div>
               );
             })}
@@ -147,11 +150,11 @@ export default function HomePage() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-slate-600 max-w-xl mx-auto mb-3">
+            <h2 className="text-3xl font-bold text-[#1A2B4A] mb-4">Simple, Transparent Pricing</h2>
+            <p className="text-[#4A5D7A] max-w-xl mx-auto mb-3">
               Start with a 6-month free trial. No credit card required.
             </p>
-            <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 rounded-full px-4 py-1.5 text-sm font-medium">
+            <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 rounded-full px-4 py-1.5 text-sm font-medium">
               <CheckCircle className="w-4 h-4" />
               6 months free trial on all plans
             </div>
@@ -162,30 +165,30 @@ export default function HomePage() {
                 key={plan.name}
                 className={`relative rounded-2xl border-2 p-8 ${
                   plan.highlighted
-                    ? 'border-blue-500 shadow-xl shadow-blue-100'
-                    : 'border-slate-200 shadow-sm'
+                    ? 'border-[#002B5C] shadow-xl shadow-[#002B5C]/10'
+                    : 'border-[#D6E0EE] shadow-sm'
                 }`}
               >
                 {plan.highlighted && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="bg-blue-600 text-white text-xs font-semibold px-4 py-1 rounded-full">
+                    <span className="bg-[#002B5C] text-white text-xs font-semibold px-4 py-1 rounded-full">
                       Most Popular
                     </span>
                   </div>
                 )}
-                <h3 className="text-xl font-bold text-slate-900 mb-2">{plan.name}</h3>
-                <p className="text-slate-500 text-sm mb-6">{plan.description}</p>
+                <h3 className="text-xl font-bold text-[#1A2B4A] mb-2">{plan.name}</h3>
+                <p className="text-[#7A8FAD] text-sm mb-6">{plan.description}</p>
                 <div className="mb-6">
-                  <span className="text-4xl font-bold text-slate-900">${plan.price}</span>
-                  <span className="text-slate-500">/month</span>
+                  <span className="text-4xl font-bold text-[#1A2B4A]">${plan.price}</span>
+                  <span className="text-[#7A8FAD]">/month</span>
                 </div>
-                <div className="bg-green-50 rounded-lg p-3 mb-6 text-center">
-                  <p className="text-green-700 text-sm font-medium">6 months free, then ${plan.price}/mo</p>
+                <div className="bg-emerald-50 rounded-lg p-3 mb-6 text-center">
+                  <p className="text-emerald-700 text-sm font-medium">6 months free, then ${plan.price}/mo</p>
                 </div>
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm text-slate-700">
-                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <li key={feature} className="flex items-start gap-2 text-sm text-[#4A5D7A]">
+                      <CheckCircle className="w-4 h-4 text-[#0F7B55] mt-0.5 flex-shrink-0" />
                       {feature}
                     </li>
                   ))}
@@ -194,8 +197,8 @@ export default function HomePage() {
                   href="/register"
                   className={`block text-center font-semibold py-3 px-6 rounded-lg transition-colors ${
                     plan.highlighted
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                      ? 'bg-[#002B5C] hover:bg-[#001E42] text-white'
+                      : 'bg-[#EBF0F8] hover:bg-[#D6E0EE] text-[#1A2B4A]'
                   }`}
                 >
                   Start Free Trial
@@ -207,10 +210,10 @@ export default function HomePage() {
       </section>
 
       {/* How it works */}
-      <section className="py-20 px-4 bg-slate-50">
+      <section className="py-20 px-4 bg-[#F4F7FC]">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">How It Works</h2>
-          <p className="text-slate-600 mb-12 max-w-xl mx-auto">
+          <h2 className="text-3xl font-bold text-[#1A2B4A] mb-4">How It Works</h2>
+          <p className="text-[#4A5D7A] mb-12 max-w-xl mx-auto">
             A streamlined workflow from initial referral to confirmed placement.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -221,11 +224,11 @@ export default function HomePage() {
               { step: '4', label: 'Agreement & Placement', desc: 'Digital agreement signed by all parties. Placement confirmed.' },
             ].map((item) => (
               <div key={item.step} className="relative">
-                <div className="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
+                <div className="bg-[#002B5C] text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
                   {item.step}
                 </div>
-                <h4 className="font-semibold text-slate-900 mb-2">{item.label}</h4>
-                <p className="text-sm text-slate-600">{item.desc}</p>
+                <h4 className="font-semibold text-[#1A2B4A] mb-2">{item.label}</h4>
+                <p className="text-sm text-[#4A5D7A]">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -233,11 +236,13 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-12 px-4">
+      <footer className="bg-[#001E42] text-[#7A8FAD] py-12 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2 text-white">
-              <Heart className="w-5 h-5 text-teal-400" />
+              <div className="w-5 h-5 bg-[#0079C1] rounded flex items-center justify-center">
+                <Plus className="w-3 h-3 text-white" strokeWidth={3} />
+              </div>
               <span className="font-bold text-lg">CareConnect</span>
             </div>
             <nav className="flex gap-6 text-sm">
