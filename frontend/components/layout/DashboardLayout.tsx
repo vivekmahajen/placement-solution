@@ -7,7 +7,7 @@ import { useAuthStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import SubscriptionBanner from '@/components/SubscriptionBanner';
 import {
-  Heart,
+  Plus,
   LayoutDashboard,
   BedDouble,
   ListChecks,
@@ -99,29 +99,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
+    <div className="min-h-screen flex bg-[#F4F7FC]">
       {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
+      <aside className="w-64 flex-shrink-0 bg-[#002B5C] flex flex-col">
         {/* Logo */}
-        <div className="h-16 flex items-center px-6 border-b border-slate-100">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-blue-700">
-            <Heart className="w-5 h-5 text-teal-600" />
+        <div className="h-16 flex items-center px-6 border-b border-[#001E42]">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-white">
+            <div className="w-6 h-6 bg-[#0079C1] rounded flex items-center justify-center">
+              <Plus className="w-4 h-4 text-white" strokeWidth={3} />
+            </div>
             CareConnect
           </Link>
         </div>
 
         {/* Role badge */}
         {user && (
-          <div className="px-4 py-3 border-b border-slate-100">
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span className="font-medium">{roleLabelMap[user.role] ?? user.role}</span>
+          <div className="px-4 py-3 border-b border-[#001E42]">
+            <div className="flex items-center gap-2 text-xs text-[#7A8FAD]">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#0079C1]" />
+              <span className="font-medium text-[#C5D5EE]">{roleLabelMap[user.role] ?? user.role}</span>
             </div>
           </div>
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href ||
@@ -133,11 +135,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-[#E8F2FB]/15 text-white border-l-2 border-[#0079C1] pl-[10px]'
+                    : 'text-[#C5D5EE] hover:bg-white/10 hover:text-white'
                 )}
               >
-                <Icon className={cn('w-4 h-4', isActive ? 'text-blue-600' : 'text-slate-400')} />
+                <Icon className={cn('w-4 h-4 flex-shrink-0', isActive ? 'text-[#0079C1]' : 'text-[#7A8FAD]')} />
                 {item.label}
               </Link>
             );
@@ -145,18 +147,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </nav>
 
         {/* User info & logout */}
-        <div className="px-3 py-4 border-t border-slate-100">
+        <div className="px-3 py-4 border-t border-[#001E42]">
           <div className="flex items-center gap-2 px-3 py-2 mb-1">
-            <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <User className="w-4 h-4 text-blue-600" />
+            <div className="w-7 h-7 rounded-full bg-[#0079C1] flex items-center justify-center flex-shrink-0">
+              <User className="w-4 h-4 text-white" />
             </div>
-            <span className="text-xs text-slate-600 truncate">{user?.email}</span>
+            <span className="text-xs text-[#C5D5EE] truncate">{user?.email}</span>
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-[#C5D5EE] hover:bg-white/10 hover:text-white transition-colors"
           >
-            <LogOut className="w-4 h-4 text-slate-400" />
+            <LogOut className="w-4 h-4 text-[#7A8FAD]" />
             Sign Out
           </button>
         </div>
@@ -165,12 +167,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center px-6 gap-4">
+        <header className="h-16 bg-white border-b border-[#D6E0EE] flex items-center px-6 gap-4">
           <div className="flex-1" />
           {user && (
             <div className="flex items-center gap-3">
-              <FileText className="w-4 h-4 text-slate-400" />
-              <span className="text-sm text-slate-600">{user.email}</span>
+              <FileText className="w-4 h-4 text-[#7A8FAD]" />
+              <span className="text-sm text-[#4A5D7A]">{user.email}</span>
             </div>
           )}
         </header>

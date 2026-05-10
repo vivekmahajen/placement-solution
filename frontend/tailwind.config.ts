@@ -35,6 +35,31 @@ const config: Config = {
           900: '#134e4a',
           950: '#042f2e',
         },
+        medical: {
+          navy: {
+            DEFAULT: '#002B5C',
+            dark: '#001E42',
+            light: '#1A4B8C',
+            50: '#E8F0FA',
+            100: '#C5D5EE',
+          },
+          sky: {
+            DEFAULT: '#0079C1',
+            light: '#E8F2FB',
+            dark: '#005A8E',
+          },
+          surface: '#F4F7FC',
+          border: '#D6E0EE',
+          'border-light': '#EBF0F8',
+          text: {
+            primary: '#1A2B4A',
+            secondary: '#4A5D7A',
+            muted: '#7A8FAD',
+          },
+          success: '#0F7B55',
+          warning: '#C47F00',
+          danger: '#C0392B',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
