@@ -93,11 +93,48 @@ router.get('/me/services', authenticate, async (req, res, next) => {
     const ch = await db.query('SELECT id FROM care_homes WHERE user_id = $1 LIMIT 1', [req.user.id]);
     if (!ch.rows.length) return res.json({ services: [] });
     const result = await db.query(
-      'SELECT * FROM care_home_services WHERE care_home_id = $1 ORDER BY service_name',
+      'SELECT id, care_home_id, service_label AS service_name, additional_cost, is_available FROM care_home_services WHERE care_home_id = $1 ORDER BY service_label',
       [ch.rows[0].id]
     );
     return res.json({ services: result.rows });
   } catch (err) { next(err); }
+});
+
+// ---------------------------------------------------------------------------
+// PUT /me/services - replace all services for the current user's care home
+// ---------------------------------------------------------------------------
+router.put('/me/services', authenticate, async (req, res, next) => {
+  const client = await db.getClient();
+  try {
+    const ch = await client.query('SELECT id FROM care_homes WHERE user_id = $1 LIMIT 1', [req.user.id]);
+    if (!ch.rows.length) return res.status(404).json({ error: 'Care home profile not found.' });
+    const careHomeId = ch.rows[0].id;
+
+    const { services } = req.body;
+    if (!Array.isArray(services)) return res.status(400).json({ error: 'services must be an array.' });
+
+    await client.query('BEGIN');
+    await client.query('DELETE FROM care_home_services WHERE care_home_id = $1', [careHomeId]);
+
+    const results = [];
+    for (const svc of services) {
+      const { service_name, additional_cost = 0 } = svc;
+      const r = await client.query(
+        `INSERT INTO care_home_services (care_home_id, service_code, service_label, additional_cost, is_available)
+         VALUES ($1, $2, $3, $4, TRUE) RETURNING id, care_home_id, service_label AS service_name, additional_cost, is_available`,
+        [careHomeId, service_name, service_name, additional_cost]
+      );
+      results.push(r.rows[0]);
+    }
+
+    await client.query('COMMIT');
+    return res.json({ services: results });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    next(err);
+  } finally {
+    client.release();
+  }
 });
 
 // ---------------------------------------------------------------------------
