@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -44,6 +44,7 @@ interface ServiceEntry {
 
 export default function CareHomeServicesPage() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [costs, setCosts] = useState<Record<string, string>>({});
@@ -70,6 +71,7 @@ export default function CareHomeServicesPage() {
   const saveMutation = useMutation({
     mutationFn: (data: ServiceEntry[]) => put('/care-homes/me/services', { services: data }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['care-home-services', user?.id] });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     },
