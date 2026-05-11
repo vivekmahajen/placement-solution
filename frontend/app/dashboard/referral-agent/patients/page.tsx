@@ -9,7 +9,7 @@ import { StatusBadge } from '@/components/ui/Badge';
 import { useAuth } from '@/lib/hooks';
 import { get } from '@/lib/api';
 import { formatDate, patientRef } from '@/lib/utils';
-import { UserPlus, Users } from 'lucide-react';
+import { UserPlus, Users, Pencil } from 'lucide-react';
 
 interface Patient {
   id: string;
@@ -78,7 +78,8 @@ export default function ReferralAgentPatientsPage() {
                     <th className="pb-3 pr-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Budget</th>
                     <th className="pb-3 pr-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Services</th>
                     <th className="pb-3 pr-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Submitted</th>
-                    <th className="pb-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+                    <th className="pb-3 pr-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+                    <th className="pb-3 text-xs font-semibold text-slate-500 uppercase tracking-wide"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -106,8 +107,16 @@ export default function ReferralAgentPatientsPage() {
                       <td className="py-3 pr-4 text-slate-600">
                         {formatDate(patient.created_at)}
                       </td>
-                      <td className="py-3">
+                      <td className="py-3 pr-4">
                         <StatusBadge status={patient.queue_status} />
+                      </td>
+                      <td className="py-3">
+                        <Link href={`/dashboard/referral-agent/patients/${patient.id}/edit`}>
+                          <Button variant="ghost" size="sm">
+                            <Pencil className="w-3.5 h-3.5" />
+                            Edit
+                          </Button>
+                        </Link>
                       </td>
                     </tr>
                   ))}
